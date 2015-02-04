@@ -15,6 +15,9 @@ public class Board : MonoBehaviour {
 
 	GameObject spawnDiceButtonTest;
 
+	const int WHITE = 0, GREEN = 1;
+
+
 	void Awake () {
 		squareSpriteList = Resources.LoadAll<Sprite>("Sprites/square");
 	}
@@ -25,7 +28,7 @@ public class Board : MonoBehaviour {
 				GameObject newSquare = (GameObject) Instantiate (Resources.Load ("Prefabs/Square"));
 				newSquare.GetComponent<Square>().XPos = x;
 				newSquare.GetComponent<Square>().YPos = y;
-				newSquare.GetComponent<SpriteRenderer>().sprite = squareSpriteList[0];
+				newSquare.GetComponent<SpriteRenderer>().sprite = squareSpriteList[WHITE];
 				newSquare.transform.position = new Vector2(x + xOffset, y + yOffset);
 				newSquare.transform.parent = this.transform;
 
@@ -50,11 +53,11 @@ public class Board : MonoBehaviour {
 					Debug.Log ("Asdf");
 				}
 				else {
-					if (hit.collider.gameObject.GetComponent<SpriteRenderer>().sprite == squareSpriteList[0]) {
-						hit.collider.gameObject.GetComponent<SpriteRenderer>().sprite = squareSpriteList[1];
+					if (hit.collider.gameObject.GetComponent<SpriteRenderer>().sprite == squareSpriteList[WHITE]) {
+						hit.collider.gameObject.GetComponent<SpriteRenderer>().sprite = squareSpriteList[GREEN];
 					}
-					else if (hit.collider.gameObject.GetComponent<SpriteRenderer>().sprite == squareSpriteList[1]) {
-						hit.collider.gameObject.GetComponent<SpriteRenderer>().sprite = squareSpriteList[0];
+					else if (hit.collider.gameObject.GetComponent<SpriteRenderer>().sprite == squareSpriteList[GREEN]) {
+						hit.collider.gameObject.GetComponent<SpriteRenderer>().sprite = squareSpriteList[WHITE];
 					}
 				}
 			}

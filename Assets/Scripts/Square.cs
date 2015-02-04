@@ -15,6 +15,12 @@ public class Square : MonoBehaviour {
 		set { yPos = value; }
 	}
 
+	private int squareType;
+	public int SquareType {
+		get { return squareType; }
+		set { squareType = value; }
+	}
+
 	void Start () {
 	
 	}
