@@ -3,13 +3,23 @@ using System.Collections;
 
 public class Square : MonoBehaviour {
 
-	// Use this for initialization
+	private int xPos;
+	public int XPos { 
+		get { return xPos; } 
+		set { xPos = value; }
+	}
+
+	private int yPos;
+	public int YPos { 
+		get { return yPos; } 
+		set { yPos = value; }
+	}
+
 	void Start () {
 	
 	}
 	
-	// Update is called once per frame
 	void Update () {
-	
+
 	}
 }
