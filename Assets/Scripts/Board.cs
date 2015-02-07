@@ -12,6 +12,7 @@ public class Board : MonoBehaviour {
 	
 	GameObject[,] boardList = new GameObject[width, height];
 	Sprite[] squareSpriteList;
+	Sprite[] diceFaceSpriteList;
 
 	GameObject spawnDiceButtonTest;
 
@@ -20,6 +21,7 @@ public class Board : MonoBehaviour {
 
 	void Awake () {
 		squareSpriteList = Resources.LoadAll<Sprite>("Sprites/square");
+		diceFaceSpriteList = Resources.LoadAll<Sprite>("Sprites/diceFaces");
 	}
 
 	void Start () {
@@ -37,20 +39,37 @@ public class Board : MonoBehaviour {
 		}
 
 		spawnDiceButtonTest = (GameObject) Instantiate (Resources.Load ("Prefabs/DiceButton"));
-//		spawnDiceButtonTest.GetComponent<SpriteRenderer> ().sprite = squareSpriteList [1];
 		spawnDiceButtonTest.transform.position = new Vector2 (15 + xOffset, 8 + yOffset);
 		spawnDiceButtonTest.transform.parent = this.transform;
 
 	}
 
 	void Update () {
+
 		if (Input.GetMouseButtonDown (0)) {
 			RaycastHit2D hit = Physics2D.Raycast(Camera.main.ScreenToWorldPoint(Input.mousePosition), Vector2.zero);
 
-			if(hit.collider != null)
+			if (hit.collider != null)
 			{
+
 				if (hit.collider.gameObject == spawnDiceButtonTest) {
-					Debug.Log ("Asdf");
+
+					GameObject newDiceFace1 = (GameObject) Instantiate (Resources.Load ("Prefabs/DiceFace"));
+					GameObject newDiceFace2 = (GameObject) Instantiate (Resources.Load ("Prefabs/DiceFace"));
+					GameObject newDiceFace3 = (GameObject) Instantiate (Resources.Load ("Prefabs/DiceFace"));
+					
+					newDiceFace1.transform.position = new Vector2(15 + xOffset, 6 + yOffset);
+					newDiceFace2.transform.position = new Vector2(15 + xOffset, 5 + yOffset);
+					newDiceFace3.transform.position = new Vector2(15 + xOffset, 4 + yOffset);
+					
+					newDiceFace1.transform.parent = this.transform;
+					newDiceFace2.transform.parent = this.transform;
+					newDiceFace3.transform.parent = this.transform;
+					
+					newDiceFace1.GetComponent<SpriteRenderer>().sprite = diceFaceSpriteList[Random.Range(0, 9)];
+					newDiceFace2.GetComponent<SpriteRenderer>().sprite = diceFaceSpriteList[Random.Range(0, 9)];
+					newDiceFace3.GetComponent<SpriteRenderer>().sprite = diceFaceSpriteList[Random.Range(0, 9)];
+
 				}
 				else {
 					if (hit.collider.gameObject.GetComponent<SpriteRenderer>().sprite == squareSpriteList[WHITE]) {
@@ -62,5 +81,8 @@ public class Board : MonoBehaviour {
 				}
 			}
 		}
+
+
+
 	}
 }
