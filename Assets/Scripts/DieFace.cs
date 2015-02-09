@@ -15,13 +15,9 @@ public class DieFace : MonoBehaviour {
 		set { color = value; }
 	}
 
-	public DieFace(int color, int type) {
-		this.color = color;
-		this.type = type;
-	}
-
 	void Start () {
-	
+		color = Random.Range (0, 9);
+		type = Random.Range (0, 9);
 	}
 
 	void Update () {
