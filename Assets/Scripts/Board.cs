@@ -7,7 +7,8 @@ public class Board : MonoBehaviour {
 	private class State {
 		public static int INITIAL = 0,
 		ROLLED = 1,
-		DICESELECTED = 2;
+		DICESELECTED = 2,
+		TEMPLATESELECTED = 3;
 	}
 
 	private class Color {
@@ -38,6 +39,10 @@ public class Board : MonoBehaviour {
 	List<GameObject> RolledDice;
 
 	GameObject selectedDice;
+
+	GameObject overlay;
+
+	GameObject diceTemplate;
 	
 	void Awake () {
 		squareSpriteList = Resources.LoadAll<Sprite>("Sprites/square");
@@ -78,9 +83,18 @@ public class Board : MonoBehaviour {
 		state = State.INITIAL;
 
 		spawnDiceButtonTest = (GameObject) Instantiate (Resources.Load ("Prefabs/DiceButton"));
-		spawnDiceButtonTest.transform.position = new Vector2 (15 + xOffset, 8 + yOffset);
+		spawnDiceButtonTest.transform.position = new Vector3 (15 + xOffset, 8 + yOffset, 1);
 		spawnDiceButtonTest.transform.parent = this.transform;
 
+		overlay = (GameObject) Instantiate (Resources.Load ("Prefabs/Overlay"));
+		overlay.GetComponent<SpriteRenderer>().color = new UnityEngine.Color(1f, 1f, 1f, 0.5f);
+		overlay.GetComponent<SpriteRenderer>().enabled = false;
+		overlay.transform.position = new Vector3 (0, 0, -2);
+
+		diceTemplate = (GameObject) Instantiate (Resources.Load ("Prefabs/DiceTemplate"));
+		diceTemplate.GetComponent<SpriteRenderer>().enabled = false;
+		diceTemplate.GetComponent<DiceTemplate>().setTemplate(0);
+		diceTemplate.transform.position = new Vector3 (0, 0, -3);
 	}
 
 	void Update () {
@@ -91,10 +105,12 @@ public class Board : MonoBehaviour {
 
 				if (hit.collider != null)
 				{
-					currentlySelected.GetComponent<SpriteRenderer>().enabled = true;
-					currentlySelected.transform.position = hit.collider.gameObject.transform.position;
-
 					if (hit.collider.gameObject == spawnDiceButtonTest) {
+
+						currentlySelected.GetComponent<SpriteRenderer>().enabled = true;
+						currentlySelected.transform.position = new Vector3(hit.collider.gameObject.transform.position.x,
+						                                                   hit.collider.gameObject.transform.position.y,
+						                                                   -1);
 
 						if (DiceList.Count > 0) {
 							int index1 = Random.Range (0, DiceList.Count);
@@ -158,11 +174,15 @@ public class Board : MonoBehaviour {
 				RaycastHit2D hit = Physics2D.Raycast(Camera.main.ScreenToWorldPoint(Input.mousePosition), Vector2.zero);
 
 				if (hit.collider != null) {
-
-					currentlySelected.transform.position = hit.collider.gameObject.transform.position;
-
 					if (RolledDice.Contains (hit.collider.gameObject)) {
+						currentlySelected.transform.position = new Vector3(hit.collider.gameObject.transform.position.x,
+						                                                   hit.collider.gameObject.transform.position.y,
+						                                                   -1);
+
 						selectedDice = hit.collider.gameObject;
+
+						overlay.GetComponent<SpriteRenderer>().enabled = true;
+						diceTemplate.GetComponent<SpriteRenderer>().enabled = true;
 
 						state = State.DICESELECTED;
 					}
@@ -174,60 +194,78 @@ public class Board : MonoBehaviour {
 				RaycastHit2D hit = Physics2D.Raycast(Camera.main.ScreenToWorldPoint(Input.mousePosition), Vector2.zero);
 				
 				if (hit.collider != null) {
-					bool containsClicked = false;
+					if (hit.collider.gameObject == diceTemplate) {
+						diceTemplate.GetComponent<DiceTemplate>().setTemplate(0);
+						diceTemplate.GetComponent<SpriteRenderer>().enabled = false;
+						overlay.GetComponent<SpriteRenderer>().enabled = false;
 
-					foreach (GameObject go in boardList) {
-						if (go == hit.collider.gameObject) {
-							containsClicked = true;
-						}
+						state = State.TEMPLATESELECTED;
 					}
+				}
+			}
+		}
+		else if (state == State.TEMPLATESELECTED) {
+			if (Input.GetMouseButtonDown (0)) {
+				RaycastHit2D hit = Physics2D.Raycast(Camera.main.ScreenToWorldPoint(Input.mousePosition), Vector2.zero);
+				bool containsClicked = false;
 
-					if (containsClicked) {
-						GameObject clickedGO = hit.collider.gameObject;
-						Square clickedSquare = clickedGO.GetComponent<Square>();
+				DiceTemplate template = diceTemplate.GetComponent<DiceTemplate>();
 
-						int clickedX = clickedSquare.XPos;
-						int clickedY = clickedSquare.YPos;
-
-						bool clear = true;
-
-						if (boardList[clickedX, clickedY].GetComponent<Square>().SquareType != Color.WHITE) {
-							clear = false;
-						}
-						if (boardList[clickedX + 1, clickedY].GetComponent<Square>().SquareType != Color.WHITE) {
-							clear = false;
-						}
-						if (boardList[clickedX, clickedY + 1].GetComponent<Square>().SquareType != Color.WHITE) {
-							clear = false;
-						}
-						if (boardList[clickedX - 1, clickedY].GetComponent<Square>().SquareType != Color.WHITE) {
-							clear = false;
-						}
-						if (boardList[clickedX, clickedY - 1].GetComponent<Square>().SquareType != Color.WHITE) {
-							clear = false;
-						}
-						if (boardList[clickedX, clickedY - 2].GetComponent<Square>().SquareType != Color.WHITE) {
-							clear = false;
-						}
-
-						if (clear) {
-							boardList[clickedX, clickedY].GetComponent<Square>().SquareType = selectedDice.GetComponent<Dice>().Color;
-							boardList[clickedX, clickedY].GetComponent<SpriteRenderer>().sprite = squareSpriteList[selectedDice.GetComponent<Dice>().Color];
-							boardList[clickedX + 1, clickedY].GetComponent<Square>().SquareType = selectedDice.GetComponent<Dice>().Color;
-							boardList[clickedX + 1, clickedY].GetComponent<SpriteRenderer>().sprite = squareSpriteList[selectedDice.GetComponent<Dice>().Color];
-							boardList[clickedX, clickedY + 1].GetComponent<Square>().SquareType = selectedDice.GetComponent<Dice>().Color;
-							boardList[clickedX, clickedY + 1].GetComponent<SpriteRenderer>().sprite = squareSpriteList[selectedDice.GetComponent<Dice>().Color];
-							boardList[clickedX - 1, clickedY].GetComponent<Square>().SquareType = selectedDice.GetComponent<Dice>().Color;
-							boardList[clickedX - 1, clickedY].GetComponent<SpriteRenderer>().sprite = squareSpriteList[selectedDice.GetComponent<Dice>().Color];
-							boardList[clickedX, clickedY - 1].GetComponent<Square>().SquareType = selectedDice.GetComponent<Dice>().Color;
-							boardList[clickedX, clickedY - 1].GetComponent<SpriteRenderer>().sprite = squareSpriteList[selectedDice.GetComponent<Dice>().Color];
-							boardList[clickedX, clickedY - 2].GetComponent<Square>().SquareType = selectedDice.GetComponent<Dice>().Color;
-							boardList[clickedX, clickedY - 2].GetComponent<SpriteRenderer>().sprite = squareSpriteList[selectedDice.GetComponent<Dice>().Color];
-
-							currentlySelected.GetComponent<SpriteRenderer>().enabled = false;
-
-							state = State.INITIAL;
-						}
+				int[] xTable = template.XTable;
+				int[] yTable = template.YTable;
+				
+				foreach (GameObject go in boardList) {
+					if (go == hit.collider.gameObject) {
+						containsClicked = true;
+					}
+				}
+				
+				if (containsClicked) {
+					GameObject clickedGO = hit.collider.gameObject;
+					Square clickedSquare = clickedGO.GetComponent<Square>();
+					
+					int clickedX = clickedSquare.XPos;
+					int clickedY = clickedSquare.YPos;
+					
+					bool clear = true;
+					
+					if (boardList[clickedX + xTable[0], clickedY + yTable[0]].GetComponent<Square>().SquareType != Color.WHITE) {
+						clear = false;
+					}
+					if (boardList[clickedX + xTable[1], clickedY + yTable[1]].GetComponent<Square>().SquareType != Color.WHITE) {
+						clear = false;
+					}
+					if (boardList[clickedX + xTable[2], clickedY + yTable[2]].GetComponent<Square>().SquareType != Color.WHITE) {
+						clear = false;
+					}
+					if (boardList[clickedX + xTable[3], clickedY + yTable[3]].GetComponent<Square>().SquareType != Color.WHITE) {
+						clear = false;
+					}
+					if (boardList[clickedX + xTable[4], clickedY + yTable[4]].GetComponent<Square>().SquareType != Color.WHITE) {
+						clear = false;
+					}
+					if (boardList[clickedX + xTable[5], clickedY + yTable[5]].GetComponent<Square>().SquareType != Color.WHITE) {
+						clear = false;
+					}
+					
+					if (clear) {
+						boardList[clickedX + xTable[0], clickedY + yTable[0]].GetComponent<Square>().SquareType = selectedDice.GetComponent<Dice>().Color;
+						boardList[clickedX + xTable[0], clickedY + yTable[0]].GetComponent<SpriteRenderer>().sprite = squareSpriteList[selectedDice.GetComponent<Dice>().Color];
+						boardList[clickedX + xTable[1], clickedY + yTable[1]].GetComponent<Square>().SquareType = selectedDice.GetComponent<Dice>().Color;
+						boardList[clickedX + xTable[1], clickedY + yTable[1]].GetComponent<SpriteRenderer>().sprite = squareSpriteList[selectedDice.GetComponent<Dice>().Color];
+						boardList[clickedX + xTable[2], clickedY + yTable[2]].GetComponent<Square>().SquareType = selectedDice.GetComponent<Dice>().Color;
+						boardList[clickedX + xTable[2], clickedY + yTable[2]].GetComponent<SpriteRenderer>().sprite = squareSpriteList[selectedDice.GetComponent<Dice>().Color];
+						boardList[clickedX + xTable[3], clickedY + yTable[3]].GetComponent<Square>().SquareType = selectedDice.GetComponent<Dice>().Color;
+						boardList[clickedX + xTable[3], clickedY + yTable[3]].GetComponent<SpriteRenderer>().sprite = squareSpriteList[selectedDice.GetComponent<Dice>().Color];
+						boardList[clickedX + xTable[4], clickedY + yTable[4]].GetComponent<Square>().SquareType = selectedDice.GetComponent<Dice>().Color;
+						boardList[clickedX + xTable[4], clickedY + yTable[4]].GetComponent<SpriteRenderer>().sprite = squareSpriteList[selectedDice.GetComponent<Dice>().Color];
+						boardList[clickedX + xTable[5], clickedY + yTable[5]].GetComponent<Square>().SquareType = selectedDice.GetComponent<Dice>().Color;
+						boardList[clickedX + xTable[5], clickedY + yTable[5]].GetComponent<SpriteRenderer>().sprite = squareSpriteList[selectedDice.GetComponent<Dice>().Color];
+						
+						currentlySelected.GetComponent<SpriteRenderer>().enabled = false;
+						
+						state = State.INITIAL;
+						
 					}
 				}
 			}
