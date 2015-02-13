@@ -28,21 +28,19 @@ public class Board : MonoBehaviour {
 	GameObject[,] boardList = new GameObject[width, height];
 	Sprite[] squareSpriteList;
 	Sprite[][] diceFaceSpriteList = new Sprite[3][];
-
 	GameObject currentlySelected;
-
 	GameObject spawnDiceButtonTest;
-	
 	List<GameObject> DiceList = new List<GameObject>();
-
 	GameObject newDice1, newDice2, newDice3;
 	List<GameObject> RolledDice;
-
 	GameObject selectedDice;
-
 	GameObject overlay;
-
 	GameObject diceTemplate;
+	GameObject nextTemplateButton,
+		prevTemplateButton,
+		rotateRightButton,
+		rotateLeftButton,
+		selectTemplateButton;
 	
 	void Awake () {
 		squareSpriteList = Resources.LoadAll<Sprite>("Sprites/square");
@@ -67,7 +65,7 @@ public class Board : MonoBehaviour {
 
 		for (int i = 0; i < 30; i++) {
 			GameObject newDice = (GameObject) Instantiate (Resources.Load ("Prefabs/Dice"));
-
+			newDice.GetComponent<BoxCollider2D>().enabled = false;
 			Dice dice = newDice.GetComponent<Dice>();
 			int[] tempFaces = new int[6] { 0, 1, 2, 3, 4, 5 };
 
@@ -95,8 +93,32 @@ public class Board : MonoBehaviour {
 		diceTemplate.GetComponent<SpriteRenderer>().enabled = false;
 		diceTemplate.GetComponent<DiceTemplate>().setTemplate(0);
 		diceTemplate.transform.position = new Vector3 (0, 0, -3);
+
+		nextTemplateButton = (GameObject) Instantiate (Resources.Load ("Prefabs/TriangleButton"));
+		nextTemplateButton.GetComponent<SpriteRenderer>().enabled = false;
+		nextTemplateButton.transform.position = new Vector3 (6, 0, -3);
+		nextTemplateButton.transform.Rotate(new Vector3(0, 0, 180));
+
+		prevTemplateButton = (GameObject) Instantiate (Resources.Load ("Prefabs/TriangleButton"));
+		prevTemplateButton.GetComponent<SpriteRenderer>().enabled = false;
+		prevTemplateButton.transform.position = new Vector3 (-6, 0, -3);
+
+		rotateLeftButton = (GameObject) Instantiate (Resources.Load ("Prefabs/RotateButton"));
+		rotateLeftButton.GetComponent<SpriteRenderer>().enabled = false;
+		rotateLeftButton.transform.position = new Vector3 (-2, -4, -3);
+
+		rotateRightButton = (GameObject) Instantiate (Resources.Load ("Prefabs/RotateButton"));
+		rotateRightButton.GetComponent<SpriteRenderer>().enabled = false;
+		rotateRightButton.transform.position = new Vector3 (2, -4, -3);
+		rotateRightButton.transform.Rotate (new Vector3(0, 180, 0));
+
+		selectTemplateButton = (GameObject) Instantiate (Resources.Load ("Prefabs/SelectTemplateButton"));
+		selectTemplateButton.GetComponent<SpriteRenderer>().enabled = false;
+		selectTemplateButton.transform.position = new Vector3(0, -4, -3);
+
 	}
 
+	#region Update
 	void Update () {
 		if (state == State.INITIAL) 
 		{
@@ -117,6 +139,7 @@ public class Board : MonoBehaviour {
 
 							if (newDice1 != null) {
 								newDice1.GetComponent<SpriteRenderer>().enabled = false;
+
 							}
 
 							newDice1 = DiceList[index1];
@@ -127,6 +150,7 @@ public class Board : MonoBehaviour {
 							newDice1.transform.parent = this.transform;
 							newDice1.GetComponent<SpriteRenderer>().sprite = diceFaceSpriteList[dice1.Color][
 								dice1.Faces[Random.Range(0, 6)]];
+							newDice1.GetComponent<BoxCollider2D>().enabled = true;
 
 							int index2 = Random.Range (0, DiceList.Count);
 
@@ -142,6 +166,7 @@ public class Board : MonoBehaviour {
 							newDice2.transform.parent = this.transform;
 							newDice2.GetComponent<SpriteRenderer>().sprite = diceFaceSpriteList[dice2.Color][
 								dice2.Faces[Random.Range(0, 6)]];
+							newDice2.GetComponent<BoxCollider2D>().enabled = true;
 
 							int index3 = Random.Range (0, DiceList.Count);
 
@@ -157,6 +182,7 @@ public class Board : MonoBehaviour {
 							newDice3.transform.parent = this.transform;
 							newDice3.GetComponent<SpriteRenderer>().sprite = diceFaceSpriteList[dice3.Color][
 								dice3.Faces[Random.Range(0, 6)]];
+							newDice3.GetComponent<BoxCollider2D>().enabled = true;
 
 							RolledDice = new List<GameObject>();
 							RolledDice.Add(newDice1);
@@ -181,8 +207,10 @@ public class Board : MonoBehaviour {
 
 						selectedDice = hit.collider.gameObject;
 
-						overlay.GetComponent<SpriteRenderer>().enabled = true;
-						diceTemplate.GetComponent<SpriteRenderer>().enabled = true;
+						diceTemplate.GetComponent<DiceTemplate>().setRotation (0);
+						diceTemplate.transform.localEulerAngles = new Vector3(0, 0, 0);
+
+						toggleTemplateOverlay(true);
 
 						state = State.DICESELECTED;
 					}
@@ -194,26 +222,36 @@ public class Board : MonoBehaviour {
 				RaycastHit2D hit = Physics2D.Raycast(Camera.main.ScreenToWorldPoint(Input.mousePosition), Vector2.zero);
 				
 				if (hit.collider != null) {
-					if (hit.collider.gameObject == diceTemplate) {
+					if (hit.collider.gameObject == selectTemplateButton) {
 						diceTemplate.GetComponent<DiceTemplate>().setTemplate(0);
-						diceTemplate.GetComponent<SpriteRenderer>().enabled = false;
-						overlay.GetComponent<SpriteRenderer>().enabled = false;
+
+						toggleTemplateOverlay(false);
 
 						state = State.TEMPLATESELECTED;
+
+					}
+					else if (hit.collider.gameObject == rotateLeftButton) {
+						diceTemplate.transform.Rotate (new Vector3(0, 0, 90));
+						diceTemplate.GetComponent<DiceTemplate>().setRotation (diceTemplate.GetComponent<DiceTemplate>().Rotation - 1);
+					}
+					else if (hit.collider.gameObject == rotateRightButton) {
+						diceTemplate.transform.Rotate (new Vector3(0, 0, -90));
+						diceTemplate.GetComponent<DiceTemplate>().setRotation (diceTemplate.GetComponent<DiceTemplate>().Rotation + 1);
 					}
 				}
 			}
 		}
 		else if (state == State.TEMPLATESELECTED) {
+
 			if (Input.GetMouseButtonDown (0)) {
 				RaycastHit2D hit = Physics2D.Raycast(Camera.main.ScreenToWorldPoint(Input.mousePosition), Vector2.zero);
+
 				bool containsClicked = false;
 
 				DiceTemplate template = diceTemplate.GetComponent<DiceTemplate>();
 
 				int[] xTable = template.XTable;
 				int[] yTable = template.YTable;
-				
 				foreach (GameObject go in boardList) {
 					if (go == hit.collider.gameObject) {
 						containsClicked = true;
@@ -228,26 +266,33 @@ public class Board : MonoBehaviour {
 					int clickedY = clickedSquare.YPos;
 					
 					bool clear = true;
-					
-					if (boardList[clickedX + xTable[0], clickedY + yTable[0]].GetComponent<Square>().SquareType != Color.WHITE) {
+
+					if ( (0 <= (clickedX + arrayMin(xTable))) && (width > clickedX + arrayMax(xTable)) &&
+					      (0 <= (clickedY + arrayMin(yTable))) && (height > clickedY + arrayMax(yTable)) ) {
+
+						if (boardList[clickedX + xTable[0], clickedY + yTable[0]].GetComponent<Square>().SquareType != Color.WHITE) {
+							clear = false;
+						}
+						if (boardList[clickedX + xTable[1], clickedY + yTable[1]].GetComponent<Square>().SquareType != Color.WHITE) {
+							clear = false;
+						}
+						if (boardList[clickedX + xTable[2], clickedY + yTable[2]].GetComponent<Square>().SquareType != Color.WHITE) {
+							clear = false;
+						}
+						if (boardList[clickedX + xTable[3], clickedY + yTable[3]].GetComponent<Square>().SquareType != Color.WHITE) {
+							clear = false;
+						}
+						if (boardList[clickedX + xTable[4], clickedY + yTable[4]].GetComponent<Square>().SquareType != Color.WHITE) {
+							clear = false;
+						}
+						if (boardList[clickedX + xTable[5], clickedY + yTable[5]].GetComponent<Square>().SquareType != Color.WHITE) {
+							clear = false;
+						} 
+					}
+					else {
 						clear = false;
 					}
-					if (boardList[clickedX + xTable[1], clickedY + yTable[1]].GetComponent<Square>().SquareType != Color.WHITE) {
-						clear = false;
-					}
-					if (boardList[clickedX + xTable[2], clickedY + yTable[2]].GetComponent<Square>().SquareType != Color.WHITE) {
-						clear = false;
-					}
-					if (boardList[clickedX + xTable[3], clickedY + yTable[3]].GetComponent<Square>().SquareType != Color.WHITE) {
-						clear = false;
-					}
-					if (boardList[clickedX + xTable[4], clickedY + yTable[4]].GetComponent<Square>().SquareType != Color.WHITE) {
-						clear = false;
-					}
-					if (boardList[clickedX + xTable[5], clickedY + yTable[5]].GetComponent<Square>().SquareType != Color.WHITE) {
-						clear = false;
-					}
-					
+
 					if (clear) {
 						boardList[clickedX + xTable[0], clickedY + yTable[0]].GetComponent<Square>().SquareType = selectedDice.GetComponent<Dice>().Color;
 						boardList[clickedX + xTable[0], clickedY + yTable[0]].GetComponent<SpriteRenderer>().sprite = squareSpriteList[selectedDice.GetComponent<Dice>().Color];
@@ -271,4 +316,47 @@ public class Board : MonoBehaviour {
 			}
 		}
 	}
+	#endregion
+
+	void toggleTemplateOverlay(bool toggle) {
+		diceTemplate.GetComponent<SpriteRenderer>().enabled = toggle;
+		diceTemplate.GetComponent<BoxCollider2D>().enabled = toggle;
+		overlay.GetComponent<SpriteRenderer>().enabled = toggle;
+		nextTemplateButton.GetComponent<SpriteRenderer>().enabled = toggle;
+		nextTemplateButton.GetComponent<BoxCollider2D>().enabled = toggle;
+		prevTemplateButton.GetComponent<SpriteRenderer>().enabled = toggle;
+		prevTemplateButton.GetComponent<BoxCollider2D>().enabled = toggle;
+		rotateLeftButton.GetComponent<SpriteRenderer>().enabled = toggle;
+		rotateLeftButton.GetComponent<BoxCollider2D>().enabled = toggle;
+		rotateRightButton.GetComponent<SpriteRenderer>().enabled = toggle;
+		rotateRightButton.GetComponent<BoxCollider2D>().enabled = toggle;
+		selectTemplateButton.GetComponent<SpriteRenderer>().enabled = toggle;
+		selectTemplateButton.GetComponent<BoxCollider2D>().enabled = toggle;
+	}
+
+	int arrayMax(int[] array) {
+		int toReturn = int.MinValue;
+
+		foreach (int curr in array) {
+			if (curr > toReturn) {
+				toReturn = curr;
+			}
+		}
+		return toReturn;
+	}
+
+	int arrayMin(int[] array) {
+		int toReturn = int.MaxValue;
+
+		foreach (int curr in array) {
+			if (curr < toReturn) {
+				toReturn = curr;
+			}
+		}
+		return toReturn;
+	}
+
+
+
+	
 }
