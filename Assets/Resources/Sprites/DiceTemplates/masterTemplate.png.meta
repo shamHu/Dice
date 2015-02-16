@@ -1,0 +1,168 @@
+fileFormatVersion: 2
+guid: ca73126e2db2b48278e1402c8b5f23b8
+TextureImporter:
+  fileIDToRecycleName:
+    21300000: masterTemplate_0
+    21300002: masterTemplate_1
+    21300004: masterTemplate_2
+    21300006: masterTemplate_3
+    21300008: masterTemplate_4
+    21300010: masterTemplate_5
+    21300012: masterTemplate_6
+    21300014: masterTemplate_7
+    21300016: masterTemplate_8
+    21300018: masterTemplate_9
+    21300020: masterTemplate_10
+  serializedVersion: 2
+  mipmaps:
+    mipMapMode: 0
+    enableMipMap: 1
+    linearTexture: 0
+    correctGamma: 0
+    fadeOut: 0
+    borderMipMap: 0
+    mipMapFadeDistanceStart: 1
+    mipMapFadeDistanceEnd: 3
+  bumpmap:
+    convertToNormalMap: 0
+    externalNormalMap: 0
+    heightScale: .25
+    normalMapFilter: 0
+  isReadable: 0
+  grayScaleToAlpha: 0
+  generateCubemap: 0
+  seamlessCubemap: 0
+  textureFormat: -1
+  maxTextureSize: 1024
+  textureSettings:
+    filterMode: -1
+    aniso: 16
+    mipBias: -1
+    wrapMode: 1
+  nPOTScale: 0
+  lightmap: 0
+  compressionQuality: 50
+  spriteMode: 2
+  spriteExtrude: 1
+  spriteMeshType: 1
+  alignment: 0
+  spritePivot: {x: .5, y: .5}
+  spriteBorder: {x: 0, y: 0, z: 0, w: 0}
+  spritePixelsToUnits: 100
+  alphaIsTransparency: 1
+  textureType: 8
+  buildTargetSettings: []
+  spriteSheet:
+    sprites:
+    - name: masterTemplate_0
+      rect:
+        serializedVersion: 2
+        x: 27
+        y: 771
+        width: 316
+        height: 418
+      alignment: 0
+      pivot: {x: .5, y: .5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+    - name: masterTemplate_1
+      rect:
+        serializedVersion: 2
+        x: 410
+        y: 868
+        width: 366
+        height: 265
+      alignment: 0
+      pivot: {x: .5, y: .5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+    - name: masterTemplate_2
+      rect:
+        serializedVersion: 2
+        x: 863
+        y: 833
+        width: 294
+        height: 340
+      alignment: 0
+      pivot: {x: .5, y: .5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+    - name: masterTemplate_3
+      rect:
+        serializedVersion: 2
+        x: 1222
+        y: 867
+        width: 353
+        height: 277
+      alignment: 0
+      pivot: {x: .5, y: .5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+    - name: masterTemplate_4
+      rect:
+        serializedVersion: 2
+        x: 25
+        y: 471
+        width: 346
+        height: 266
+      alignment: 0
+      pivot: {x: .5, y: .5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+    - name: masterTemplate_5
+      rect:
+        serializedVersion: 2
+        x: 462
+        y: 449
+        width: 252
+        height: 337
+      alignment: 0
+      pivot: {x: .5, y: .5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+    - name: masterTemplate_6
+      rect:
+        serializedVersion: 2
+        x: 876
+        y: 454
+        width: 281
+        height: 336
+      alignment: 0
+      pivot: {x: .5, y: .5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+    - name: masterTemplate_7
+      rect:
+        serializedVersion: 2
+        x: 1270
+        y: 446
+        width: 262
+        height: 356
+      alignment: 0
+      pivot: {x: .5, y: .5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+    - name: masterTemplate_8
+      rect:
+        serializedVersion: 2
+        x: 62
+        y: 32
+        width: 282
+        height: 339
+      alignment: 0
+      pivot: {x: .5, y: .5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+    - name: masterTemplate_9
+      rect:
+        serializedVersion: 2
+        x: 454
+        y: 33
+        width: 278
+        height: 350
+      alignment: 0
+      pivot: {x: .5, y: .5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+    - name: masterTemplate_10
+      rect:
+        serializedVersion: 2
+        x: 876
+        y: 38
+        width: 276
+        height: 345
+      alignment: 0
+      pivot: {x: .5, y: .5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+  spritePackingTag: 
+  userData: 

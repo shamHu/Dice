@@ -24,15 +24,19 @@ public class Board : MonoBehaviour {
 
 	float xOffset = -(width / 2);
 	float yOffset = -(height / 2);
+
+	int templateID;
 	
 	GameObject[,] boardList = new GameObject[width, height];
-	Sprite[] squareSpriteList;
 	Sprite[][] diceFaceSpriteList = new Sprite[3][];
+	Sprite[] squareSpriteList;
+	Sprite[] diceTemplateSpriteList;
+	List<GameObject> DiceList = new List<GameObject>();
+	List<GameObject> RolledDice;
+
 	GameObject currentlySelected;
 	GameObject spawnDiceButtonTest;
-	List<GameObject> DiceList = new List<GameObject>();
 	GameObject newDice1, newDice2, newDice3;
-	List<GameObject> RolledDice;
 	GameObject selectedDice;
 	GameObject overlay;
 	GameObject diceTemplate;
@@ -40,6 +44,7 @@ public class Board : MonoBehaviour {
 		prevTemplateButton,
 		rotateRightButton,
 		rotateLeftButton,
+		mirrorButton,
 		selectTemplateButton;
 	
 	void Awake () {
@@ -47,6 +52,7 @@ public class Board : MonoBehaviour {
 		diceFaceSpriteList[Color.WHITE] = Resources.LoadAll<Sprite>("Sprites/diceFaces");
 		diceFaceSpriteList[Color.GREEN] = Resources.LoadAll<Sprite>("Sprites/diceFacesGreen");
 		diceFaceSpriteList[Color.BLUE] = Resources.LoadAll<Sprite>("Sprites/diceFacesBlue");
+		diceTemplateSpriteList = Resources.LoadAll<Sprite>("Sprites/DiceTemplates/masterTemplate");
 	}
 
 	void Start () {
@@ -89,9 +95,12 @@ public class Board : MonoBehaviour {
 		overlay.GetComponent<SpriteRenderer>().enabled = false;
 		overlay.transform.position = new Vector3 (0, 0, -2);
 
+		templateID = 0;
+
 		diceTemplate = (GameObject) Instantiate (Resources.Load ("Prefabs/DiceTemplate"));
+		diceTemplate.GetComponent<SpriteRenderer>().sprite = diceTemplateSpriteList[0];
 		diceTemplate.GetComponent<SpriteRenderer>().enabled = false;
-		diceTemplate.GetComponent<DiceTemplate>().setTemplate(0);
+		diceTemplate.GetComponent<DiceTemplate>().setTemplate(templateID);
 		diceTemplate.transform.position = new Vector3 (0, 0, -3);
 
 		nextTemplateButton = (GameObject) Instantiate (Resources.Load ("Prefabs/TriangleButton"));
@@ -112,13 +121,18 @@ public class Board : MonoBehaviour {
 		rotateRightButton.transform.position = new Vector3 (2, -4, -3);
 		rotateRightButton.transform.Rotate (new Vector3(0, 180, 0));
 
+		mirrorButton = (GameObject) Instantiate (Resources.Load ("Prefabs/MirrorButton"));
+		mirrorButton.GetComponent<SpriteRenderer>().enabled = false;
+		mirrorButton.transform.position = new Vector3 (0, 4, -3);
+
 		selectTemplateButton = (GameObject) Instantiate (Resources.Load ("Prefabs/SelectTemplateButton"));
 		selectTemplateButton.GetComponent<SpriteRenderer>().enabled = false;
 		selectTemplateButton.transform.position = new Vector3(0, -4, -3);
 
+
+
 	}
 
-	#region Update
 	void Update () {
 		if (state == State.INITIAL) 
 		{
@@ -209,6 +223,7 @@ public class Board : MonoBehaviour {
 
 						diceTemplate.GetComponent<DiceTemplate>().setRotation (0);
 						diceTemplate.transform.localEulerAngles = new Vector3(0, 0, 0);
+						diceTemplate.GetComponent<DiceTemplate>().Mirrored = false;
 
 						toggleTemplateOverlay(true);
 
@@ -220,10 +235,12 @@ public class Board : MonoBehaviour {
 		else if (state == State.DICESELECTED) {
 			if (Input.GetMouseButtonDown (0)) {
 				RaycastHit2D hit = Physics2D.Raycast(Camera.main.ScreenToWorldPoint(Input.mousePosition), Vector2.zero);
-				
+
+
+
 				if (hit.collider != null) {
 					if (hit.collider.gameObject == selectTemplateButton) {
-						diceTemplate.GetComponent<DiceTemplate>().setTemplate(0);
+						diceTemplate.GetComponent<DiceTemplate>().setTemplate(templateID);
 
 						toggleTemplateOverlay(false);
 
@@ -237,6 +254,35 @@ public class Board : MonoBehaviour {
 					else if (hit.collider.gameObject == rotateRightButton) {
 						diceTemplate.transform.Rotate (new Vector3(0, 0, -90));
 						diceTemplate.GetComponent<DiceTemplate>().setRotation (diceTemplate.GetComponent<DiceTemplate>().Rotation + 1);
+					}
+					else if (hit.collider.gameObject == mirrorButton) {
+						diceTemplate.GetComponent<DiceTemplate>().setRotation (0);
+						diceTemplate.transform.Rotate (new Vector3(0, 180, 0));
+						if (diceTemplate.GetComponent<DiceTemplate>().Mirrored) {
+							diceTemplate.GetComponent<DiceTemplate>().Mirrored = false;
+						}
+						else {
+							diceTemplate.GetComponent<DiceTemplate>().Mirrored = true;
+						}
+					}
+					else if (hit.collider.gameObject == nextTemplateButton) {
+						templateID++;
+
+						if (templateID >= 11) {
+							templateID = 0;
+						}
+
+						diceTemplate.GetComponent<SpriteRenderer>().sprite = diceTemplateSpriteList[templateID];
+
+					}
+					else if (hit.collider.gameObject == prevTemplateButton) {
+						templateID --;
+
+						if (templateID < 0) {
+							templateID = 10;
+						}
+
+						diceTemplate.GetComponent<SpriteRenderer>().sprite = diceTemplateSpriteList[templateID];
 					}
 				}
 			}
@@ -316,7 +362,6 @@ public class Board : MonoBehaviour {
 			}
 		}
 	}
-	#endregion
 
 	void toggleTemplateOverlay(bool toggle) {
 		diceTemplate.GetComponent<SpriteRenderer>().enabled = toggle;
@@ -332,6 +377,8 @@ public class Board : MonoBehaviour {
 		rotateRightButton.GetComponent<BoxCollider2D>().enabled = toggle;
 		selectTemplateButton.GetComponent<SpriteRenderer>().enabled = toggle;
 		selectTemplateButton.GetComponent<BoxCollider2D>().enabled = toggle;
+		mirrorButton.GetComponent<SpriteRenderer>().enabled = toggle;
+		mirrorButton.GetComponent<BoxCollider2D>().enabled = toggle;
 	}
 
 	int arrayMax(int[] array) {
