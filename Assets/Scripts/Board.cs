@@ -309,6 +309,7 @@ public class Board : MonoBehaviour {
 
 						GameObject newMonster = (GameObject) Instantiate (Resources.Load ("Prefabs/Monster"));
 						newMonster.transform.position = new Vector3(clickedX + xOffset, clickedY + yOffset, -2);
+						newMonster.GetComponent<Monster>().Position = newMonster.transform.position;
 						MonsterList.Add(newMonster);
 
 						state = State.TEMPLATEPLACED;
@@ -373,34 +374,8 @@ public class Board : MonoBehaviour {
 						}
 						
 						if (containsClicked) {
-							if (clickedGO.GetComponent<Square>().SquareType != Color.WHITE) {
-								float clickedX = clickedGO.transform.position.x;
-								float clickedY = clickedGO.transform.position.y;
-								float monsterX = selectedMonster.transform.position.x;
-								float monsterY = selectedMonster.transform.position.y;
-								float monsterZ = selectedMonster.transform.position.z;
+							selectedMonster.transform.position = selectedMonster.GetComponent<Monster>().move(clickedGO);
 
-								if (clickedX == monsterX) {
-									if (clickedY == monsterY + 1) {
-										selectedMonster.transform.position = 
-											new Vector3(monsterX, monsterY + 1, monsterZ);
-									}
-									else if (clickedY == monsterY - 1) {
-										selectedMonster.transform.position = 
-											new Vector3(monsterX, monsterY - 1, monsterZ);
-									}
-								}
-								else if (clickedY == monsterY) {
-									if (clickedX == monsterX + 1) {
-										selectedMonster.transform.position = 
-											new Vector3(monsterX + 1, monsterY, monsterZ);
-									}
-									else if (clickedX == monsterX - 1) {
-										selectedMonster.transform.position = 
-											new Vector3(monsterX - 1, monsterY, monsterZ);
-									}
-								}
-							}
 							currentlySelected.transform.position = selectedMonster.transform.position;
 						}
 					}
