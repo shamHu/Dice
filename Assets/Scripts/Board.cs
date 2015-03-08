@@ -8,7 +8,9 @@ public class Board : MonoBehaviour {
 		public static int INITIAL = 0,
 		ROLLED = 1,
 		DICESELECTED = 2,
-		TEMPLATESELECTED = 3;
+		TEMPLATESELECTED = 3,
+		TEMPLATEPLACED = 4,
+		MONSTERSELECTED = 5;
 	}
 
 	private class Color {
@@ -33,6 +35,7 @@ public class Board : MonoBehaviour {
 	Sprite[] diceTemplateSpriteList;
 	List<GameObject> DiceList = new List<GameObject>();
 	List<GameObject> RolledDice;
+	List<GameObject> MonsterList;
 
 	GameObject currentlySelected;
 	GameObject spawnDiceButtonTest;
@@ -46,7 +49,8 @@ public class Board : MonoBehaviour {
 		rotateLeftButton,
 		mirrorButton,
 		selectTemplateButton;
-	
+	GameObject selectedMonster;
+
 	void Awake () {
 		squareSpriteList = Resources.LoadAll<Sprite>("Sprites/square");
 		diceFaceSpriteList[Color.WHITE] = Resources.LoadAll<Sprite>("Sprites/diceFaces");
@@ -129,7 +133,7 @@ public class Board : MonoBehaviour {
 		selectTemplateButton.GetComponent<SpriteRenderer>().enabled = false;
 		selectTemplateButton.transform.position = new Vector3(0, -4, -3);
 
-
+		MonsterList = new List<GameObject>();
 
 	}
 
@@ -144,66 +148,13 @@ public class Board : MonoBehaviour {
 					if (hit.collider.gameObject == spawnDiceButtonTest) {
 
 						currentlySelected.GetComponent<SpriteRenderer>().enabled = true;
-						currentlySelected.transform.position = new Vector3(hit.collider.gameObject.transform.position.x,
-						                                                   hit.collider.gameObject.transform.position.y,
-						                                                   -1);
+						currentlySelected.transform.position = 
+							new Vector3(hit.collider.gameObject.transform.position.x,
+	                           hit.collider.gameObject.transform.position.y,
+                               -1);
 
 						if (DiceList.Count > 0) {
-							int index1 = Random.Range (0, DiceList.Count);
-
-							if (newDice1 != null) {
-								newDice1.GetComponent<SpriteRenderer>().enabled = false;
-
-							}
-
-							newDice1 = DiceList[index1];
-							DiceList.RemoveAt (index1);
-							Dice dice1 = newDice1.GetComponent<Dice>();
-
-							newDice1.transform.position = new Vector2(15 + xOffset, 6 + yOffset);
-							newDice1.transform.parent = this.transform;
-							newDice1.GetComponent<SpriteRenderer>().sprite = diceFaceSpriteList[dice1.Color][
-								dice1.Faces[Random.Range(0, 6)]];
-							newDice1.GetComponent<BoxCollider2D>().enabled = true;
-
-							int index2 = Random.Range (0, DiceList.Count);
-
-							if (newDice2 != null) {
-								newDice2.GetComponent<SpriteRenderer>().enabled = false;
-							}
-
-							newDice2 = DiceList[index2];
-							DiceList.RemoveAt (index2);
-							Dice dice2 = newDice2.GetComponent<Dice>();
-							
-							newDice2.transform.position = new Vector2(15 + xOffset, 5 + yOffset);
-							newDice2.transform.parent = this.transform;
-							newDice2.GetComponent<SpriteRenderer>().sprite = diceFaceSpriteList[dice2.Color][
-								dice2.Faces[Random.Range(0, 6)]];
-							newDice2.GetComponent<BoxCollider2D>().enabled = true;
-
-							int index3 = Random.Range (0, DiceList.Count);
-
-							if (newDice3 != null) {
-								newDice3.GetComponent<SpriteRenderer>().enabled = false;
-							}
-
-							newDice3 = DiceList[index3];
-							DiceList.RemoveAt (index3);
-							Dice dice3 = newDice3.GetComponent<Dice>();
-							
-							newDice3.transform.position = new Vector2(15 + xOffset, 4 + yOffset);
-							newDice3.transform.parent = this.transform;
-							newDice3.GetComponent<SpriteRenderer>().sprite = diceFaceSpriteList[dice3.Color][
-								dice3.Faces[Random.Range(0, 6)]];
-							newDice3.GetComponent<BoxCollider2D>().enabled = true;
-
-							RolledDice = new List<GameObject>();
-							RolledDice.Add(newDice1);
-							RolledDice.Add(newDice2);
-							RolledDice.Add(newDice3);
-
-							state = State.ROLLED;
+							rollDice();
 						}
 					}
 				}
@@ -215,9 +166,10 @@ public class Board : MonoBehaviour {
 
 				if (hit.collider != null) {
 					if (RolledDice.Contains (hit.collider.gameObject)) {
-						currentlySelected.transform.position = new Vector3(hit.collider.gameObject.transform.position.x,
-						                                                   hit.collider.gameObject.transform.position.y,
-						                                                   -1);
+						currentlySelected.transform.position = 
+							new Vector3(hit.collider.gameObject.transform.position.x,
+                               hit.collider.gameObject.transform.position.y,
+                               -1);
 
 						selectedDice = hit.collider.gameObject;
 
@@ -354,9 +306,103 @@ public class Board : MonoBehaviour {
 						boardList[clickedX + xTable[5], clickedY + yTable[5]].GetComponent<SpriteRenderer>().sprite = squareSpriteList[selectedDice.GetComponent<Dice>().Color];
 						
 						currentlySelected.GetComponent<SpriteRenderer>().enabled = false;
+
+						GameObject newMonster = (GameObject) Instantiate (Resources.Load ("Prefabs/Monster"));
+						newMonster.transform.position = new Vector3(clickedX + xOffset, clickedY + yOffset, -2);
+						MonsterList.Add(newMonster);
+
+						state = State.TEMPLATEPLACED;
 						
-						state = State.INITIAL;
+					}
+				}
+			}
+		}
+		else if (state == State.TEMPLATEPLACED) {
+			if (Input.GetMouseButtonDown (0)) {
+				RaycastHit2D hit = Physics2D.Raycast(Camera.main.ScreenToWorldPoint(Input.mousePosition), Vector2.zero);
+
+				if (hit.collider != null) {
+					if (hit.collider.gameObject == spawnDiceButtonTest) {
 						
+						currentlySelected.GetComponent<SpriteRenderer>().enabled = true;
+						currentlySelected.transform.position = 
+							new Vector3(hit.collider.gameObject.transform.position.x,
+                               hit.collider.gameObject.transform.position.y,
+                               -1);
+						
+						if (DiceList.Count > 0) {
+							rollDice();
+						}
+					}
+					else if (MonsterList.Contains (hit.collider.gameObject)) {
+						currentlySelected.transform.position = hit.collider.gameObject.transform.position;
+						currentlySelected.GetComponent<SpriteRenderer>().enabled = true;
+						selectedMonster = hit.collider.gameObject;
+
+						state = State.MONSTERSELECTED;
+					}
+				}
+			}
+		}
+		else if (state == State.MONSTERSELECTED) {
+			if (Input.GetMouseButtonDown (0)) {
+				RaycastHit2D hit = Physics2D.Raycast(Camera.main.ScreenToWorldPoint(Input.mousePosition), Vector2.zero);
+
+				if (hit.collider != null) {
+
+					GameObject clickedGO = hit.collider.gameObject;
+
+					if (clickedGO == spawnDiceButtonTest) {
+						
+						currentlySelected.GetComponent<SpriteRenderer>().enabled = true;
+						currentlySelected.transform.position = 
+							new Vector3(clickedGO.transform.position.x,
+							            clickedGO.transform.position.y,
+							            -1);
+						
+						if (DiceList.Count > 0) {
+							rollDice();
+						}
+					}
+					else {
+						bool containsClicked = false;
+						foreach (GameObject go in boardList) {
+							if (go == clickedGO) {
+								containsClicked = true;
+							}
+						}
+						
+						if (containsClicked) {
+							if (clickedGO.GetComponent<Square>().SquareType != Color.WHITE) {
+								float clickedX = clickedGO.transform.position.x;
+								float clickedY = clickedGO.transform.position.y;
+								float monsterX = selectedMonster.transform.position.x;
+								float monsterY = selectedMonster.transform.position.y;
+								float monsterZ = selectedMonster.transform.position.z;
+
+								if (clickedX == monsterX) {
+									if (clickedY == monsterY + 1) {
+										selectedMonster.transform.position = 
+											new Vector3(monsterX, monsterY + 1, monsterZ);
+									}
+									else if (clickedY == monsterY - 1) {
+										selectedMonster.transform.position = 
+											new Vector3(monsterX, monsterY - 1, monsterZ);
+									}
+								}
+								else if (clickedY == monsterY) {
+									if (clickedX == monsterX + 1) {
+										selectedMonster.transform.position = 
+											new Vector3(monsterX + 1, monsterY, monsterZ);
+									}
+									else if (clickedX == monsterX - 1) {
+										selectedMonster.transform.position = 
+											new Vector3(monsterX - 1, monsterY, monsterZ);
+									}
+								}
+							}
+							currentlySelected.transform.position = selectedMonster.transform.position;
+						}
 					}
 				}
 			}
@@ -379,6 +425,61 @@ public class Board : MonoBehaviour {
 		selectTemplateButton.GetComponent<BoxCollider2D>().enabled = toggle;
 		mirrorButton.GetComponent<SpriteRenderer>().enabled = toggle;
 		mirrorButton.GetComponent<BoxCollider2D>().enabled = toggle;
+	}
+
+	void rollDice() {
+		int index1 = Random.Range (0, DiceList.Count);
+		
+		if (newDice1 != null) {
+			newDice1.GetComponent<SpriteRenderer>().enabled = false;
+			
+		}
+		
+		newDice1 = DiceList[index1];
+		DiceList.RemoveAt (index1);
+		Dice dice1 = newDice1.GetComponent<Dice>();
+		
+		newDice1.transform.position = new Vector2(15 + xOffset, 6 + yOffset);
+		newDice1.transform.parent = this.transform;
+		newDice1.GetComponent<SpriteRenderer>().sprite = diceFaceSpriteList[dice1.Color][dice1.Faces[Random.Range(0, 6)]];
+		newDice1.GetComponent<BoxCollider2D>().enabled = true;
+		
+		int index2 = Random.Range (0, DiceList.Count);
+		
+		if (newDice2 != null) {
+			newDice2.GetComponent<SpriteRenderer>().enabled = false;
+		}
+		
+		newDice2 = DiceList[index2];
+		DiceList.RemoveAt (index2);
+		Dice dice2 = newDice2.GetComponent<Dice>();
+		
+		newDice2.transform.position = new Vector2(15 + xOffset, 5 + yOffset);
+		newDice2.transform.parent = this.transform;
+		newDice2.GetComponent<SpriteRenderer>().sprite = diceFaceSpriteList[dice2.Color][dice2.Faces[Random.Range(0, 6)]];
+		newDice2.GetComponent<BoxCollider2D>().enabled = true;
+		
+		int index3 = Random.Range (0, DiceList.Count);
+		
+		if (newDice3 != null) {
+			newDice3.GetComponent<SpriteRenderer>().enabled = false;
+		}
+		
+		newDice3 = DiceList[index3];
+		DiceList.RemoveAt (index3);
+		Dice dice3 = newDice3.GetComponent<Dice>();
+		
+		newDice3.transform.position = new Vector2(15 + xOffset, 4 + yOffset);
+		newDice3.transform.parent = this.transform;
+		newDice3.GetComponent<SpriteRenderer>().sprite = diceFaceSpriteList[dice3.Color][dice3.Faces[Random.Range(0, 6)]];
+		newDice3.GetComponent<BoxCollider2D>().enabled = true;
+		
+		RolledDice = new List<GameObject>();
+		RolledDice.Add(newDice1);
+		RolledDice.Add(newDice2);
+		RolledDice.Add(newDice3);
+		
+		state = State.ROLLED;
 	}
 
 	int arrayMax(int[] array) {

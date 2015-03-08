@@ -101,11 +101,10 @@ public class DiceTemplate : MonoBehaviour {
 			break;
 
 		case 3:
-			xTemp = new int[6];
 			yTemp = new int[6];
 			
-			for (int x = 0; x < xBaseTable.Length; x++) {
-				xTemp[x] = (0 - xBaseTable[x]);
+			for (int x = 0; x < yBaseTable.Length; x++) {
+				yTemp[x] = (0 - yBaseTable[x]);
 			}
 
 			xTable = yTemp;
