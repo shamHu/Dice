@@ -19,6 +19,11 @@ public class Board : MonoBehaviour {
 		BLUE = 2;
 	}
 
+	private class Owner {
+		public static int PLAYER = 0,
+		AI = 1;
+	}
+
 	static int width = 14;
 	static int height = 9;
 
@@ -36,6 +41,9 @@ public class Board : MonoBehaviour {
 	List<GameObject> DiceList = new List<GameObject>();
 	List<GameObject> RolledDice;
 	List<GameObject> MonsterList;
+	List<GameObject> Graveyard;
+	List<GameObject> PlayerMonsterList;
+	List<GameObject> AIMonsterList;
 
 	GameObject currentlySelected;
 	GameObject spawnDiceButtonTest;
@@ -49,7 +57,7 @@ public class Board : MonoBehaviour {
 		rotateLeftButton,
 		mirrorButton,
 		selectTemplateButton;
-	GameObject selectedMonster;
+	GameObject selectedMonsterGO;
 
 	void Awake () {
 		squareSpriteList = Resources.LoadAll<Sprite>("Sprites/square");
@@ -60,6 +68,8 @@ public class Board : MonoBehaviour {
 	}
 
 	void Start () {
+		Screen.orientation = ScreenOrientation.LandscapeLeft;
+
 		for (int x = 0; x < width; x++) {
 			for (int y = 0; y < height; y++) {
 				GameObject newSquare = (GameObject) Instantiate (Resources.Load ("Prefabs/Square"));
@@ -73,17 +83,7 @@ public class Board : MonoBehaviour {
 			}
 		}
 
-		for (int i = 0; i < 30; i++) {
-			GameObject newDice = (GameObject) Instantiate (Resources.Load ("Prefabs/Dice"));
-			newDice.GetComponent<BoxCollider2D>().enabled = false;
-			Dice dice = newDice.GetComponent<Dice>();
-			int[] tempFaces = new int[6] { 0, 1, 2, 3, 4, 5 };
-
-			dice.Faces = tempFaces;
-			dice.Color = Random.Range (1, 3);
-
-			DiceList.Add (newDice);
-		}
+		DiceList = parseDiceList("../Dice/Assets/Resources/testfile1");
 
 		currentlySelected = (GameObject) Instantiate (Resources.Load ("Prefabs/Border"));
 		currentlySelected.transform.parent = this.transform;
@@ -134,6 +134,9 @@ public class Board : MonoBehaviour {
 		selectTemplateButton.transform.position = new Vector3(0, -4, -3);
 
 		MonsterList = new List<GameObject>();
+		Graveyard = new List<GameObject>();
+		PlayerMonsterList = new List<GameObject>();
+		AIMonsterList = new List<GameObject>();
 
 	}
 
@@ -187,8 +190,6 @@ public class Board : MonoBehaviour {
 		else if (state == State.DICESELECTED) {
 			if (Input.GetMouseButtonDown (0)) {
 				RaycastHit2D hit = Physics2D.Raycast(Camera.main.ScreenToWorldPoint(Input.mousePosition), Vector2.zero);
-
-
 
 				if (hit.collider != null) {
 					if (hit.collider.gameObject == selectTemplateButton) {
@@ -262,58 +263,37 @@ public class Board : MonoBehaviour {
 					
 					int clickedX = clickedSquare.XPos;
 					int clickedY = clickedSquare.YPos;
-					
-					bool clear = true;
 
-					if ( (0 <= (clickedX + arrayMin(xTable))) && (width > clickedX + arrayMax(xTable)) &&
-					      (0 <= (clickedY + arrayMin(yTable))) && (height > clickedY + arrayMax(yTable)) ) {
+					if (checkTemplatePlacement(xTable, yTable, clickedX, clickedY)) {
 
-						if (boardList[clickedX + xTable[0], clickedY + yTable[0]].GetComponent<Square>().SquareType != Color.WHITE) {
-							clear = false;
-						}
-						if (boardList[clickedX + xTable[1], clickedY + yTable[1]].GetComponent<Square>().SquareType != Color.WHITE) {
-							clear = false;
-						}
-						if (boardList[clickedX + xTable[2], clickedY + yTable[2]].GetComponent<Square>().SquareType != Color.WHITE) {
-							clear = false;
-						}
-						if (boardList[clickedX + xTable[3], clickedY + yTable[3]].GetComponent<Square>().SquareType != Color.WHITE) {
-							clear = false;
-						}
-						if (boardList[clickedX + xTable[4], clickedY + yTable[4]].GetComponent<Square>().SquareType != Color.WHITE) {
-							clear = false;
-						}
-						if (boardList[clickedX + xTable[5], clickedY + yTable[5]].GetComponent<Square>().SquareType != Color.WHITE) {
-							clear = false;
-						} 
-					}
-					else {
-						clear = false;
-					}
+						placeTemplate(xTable, yTable, clickedX, clickedY);
 
-					if (clear) {
-						boardList[clickedX + xTable[0], clickedY + yTable[0]].GetComponent<Square>().SquareType = selectedDice.GetComponent<Dice>().Color;
-						boardList[clickedX + xTable[0], clickedY + yTable[0]].GetComponent<SpriteRenderer>().sprite = squareSpriteList[selectedDice.GetComponent<Dice>().Color];
-						boardList[clickedX + xTable[1], clickedY + yTable[1]].GetComponent<Square>().SquareType = selectedDice.GetComponent<Dice>().Color;
-						boardList[clickedX + xTable[1], clickedY + yTable[1]].GetComponent<SpriteRenderer>().sprite = squareSpriteList[selectedDice.GetComponent<Dice>().Color];
-						boardList[clickedX + xTable[2], clickedY + yTable[2]].GetComponent<Square>().SquareType = selectedDice.GetComponent<Dice>().Color;
-						boardList[clickedX + xTable[2], clickedY + yTable[2]].GetComponent<SpriteRenderer>().sprite = squareSpriteList[selectedDice.GetComponent<Dice>().Color];
-						boardList[clickedX + xTable[3], clickedY + yTable[3]].GetComponent<Square>().SquareType = selectedDice.GetComponent<Dice>().Color;
-						boardList[clickedX + xTable[3], clickedY + yTable[3]].GetComponent<SpriteRenderer>().sprite = squareSpriteList[selectedDice.GetComponent<Dice>().Color];
-						boardList[clickedX + xTable[4], clickedY + yTable[4]].GetComponent<Square>().SquareType = selectedDice.GetComponent<Dice>().Color;
-						boardList[clickedX + xTable[4], clickedY + yTable[4]].GetComponent<SpriteRenderer>().sprite = squareSpriteList[selectedDice.GetComponent<Dice>().Color];
-						boardList[clickedX + xTable[5], clickedY + yTable[5]].GetComponent<Square>().SquareType = selectedDice.GetComponent<Dice>().Color;
-						boardList[clickedX + xTable[5], clickedY + yTable[5]].GetComponent<SpriteRenderer>().sprite = squareSpriteList[selectedDice.GetComponent<Dice>().Color];
-						
 						currentlySelected.GetComponent<SpriteRenderer>().enabled = false;
 
-						GameObject newMonster = (GameObject) Instantiate (Resources.Load ("Prefabs/Monster"));
-						newMonster.transform.position = new Vector3(clickedX + xOffset, clickedY + yOffset, -2);
-						newMonster.GetComponent<Monster>().Position = newMonster.transform.position;
-						MonsterList.Add(newMonster);
+						GameObject newMonsterGO = (GameObject) Instantiate (Resources.Load ("Prefabs/Monster"));
+						newMonsterGO.transform.position = new Vector3(clickedX + xOffset, clickedY + yOffset, -2);
+						Monster newMonster = newMonsterGO.GetComponent<Monster>();
+						newMonster.Position = newMonster.transform.position;
+
+						if (selectedDice.GetComponent<Dice>().RolledFace.Color == Color.GREEN) {
+							newMonster.Owner = Owner.PLAYER;
+							newMonster.Attack = 5;
+							newMonster.Defense = 1;
+							newMonster.Health = 8;
+							newMonsterGO.GetComponent<SpriteRenderer>().sprite = Resources.Load<Sprite> ("Sprites/bulbasaur");
+							PlayerMonsterList.Add (newMonsterGO);
+						}
+						else {
+							newMonster.Owner = Owner.AI;
+							newMonster.Attack = 5;
+							newMonster.Defense = 1;
+							newMonster.Health = 8;
+							newMonsterGO.GetComponent<SpriteRenderer>().sprite = Resources.Load<Sprite> ("Sprites/squirtle");
+							AIMonsterList.Add (newMonsterGO);
+						}
+						MonsterList.Add(newMonsterGO);
 
 						state = State.TEMPLATEPLACED;
-						
 					}
 				}
 			}
@@ -338,7 +318,7 @@ public class Board : MonoBehaviour {
 					else if (MonsterList.Contains (hit.collider.gameObject)) {
 						currentlySelected.transform.position = hit.collider.gameObject.transform.position;
 						currentlySelected.GetComponent<SpriteRenderer>().enabled = true;
-						selectedMonster = hit.collider.gameObject;
+						selectedMonsterGO = hit.collider.gameObject;
 
 						state = State.MONSTERSELECTED;
 					}
@@ -365,6 +345,20 @@ public class Board : MonoBehaviour {
 							rollDice();
 						}
 					}
+					else if (clickedGO.GetComponent<Monster>() != null) {
+						Monster clickedMonster = clickedGO.GetComponent<Monster>();
+						Monster selectedMonster = selectedMonsterGO.GetComponent<Monster>();
+
+						if (clickedMonster.Owner == selectedMonster.Owner) {
+							selectedMonsterGO = clickedGO;
+							currentlySelected.transform.position = clickedGO.transform.position;
+						}
+						else {
+							//TODO implement fight stuff
+							resolveFight(selectedMonsterGO, clickedGO);
+							Debug.Log ("fight!");
+						}
+					}
 					else {
 						bool containsClicked = false;
 						foreach (GameObject go in boardList) {
@@ -374,9 +368,9 @@ public class Board : MonoBehaviour {
 						}
 						
 						if (containsClicked) {
-							selectedMonster.transform.position = selectedMonster.GetComponent<Monster>().move(clickedGO);
+							selectedMonsterGO.transform.position = selectedMonsterGO.GetComponent<Monster>().move(clickedGO);
 
-							currentlySelected.transform.position = selectedMonster.transform.position;
+							currentlySelected.transform.position = selectedMonsterGO.transform.position;
 						}
 					}
 				}
@@ -384,6 +378,13 @@ public class Board : MonoBehaviour {
 		}
 	}
 
+	/*  
+	 * Helper function that shows or hides all the template editing tools depending on the
+	 * input bool value. 
+	 * 
+	 * Parameters:
+	 * 		bool toggle: Shows template editing tools if true, hides them if false.
+	 */
 	void toggleTemplateOverlay(bool toggle) {
 		diceTemplate.GetComponent<SpriteRenderer>().enabled = toggle;
 		diceTemplate.GetComponent<BoxCollider2D>().enabled = toggle;
@@ -402,6 +403,9 @@ public class Board : MonoBehaviour {
 		mirrorButton.GetComponent<BoxCollider2D>().enabled = toggle;
 	}
 
+	/*
+	 * Rolls 
+	 */
 	void rollDice() {
 		int index1 = Random.Range (0, DiceList.Count);
 		
@@ -416,7 +420,10 @@ public class Board : MonoBehaviour {
 		
 		newDice1.transform.position = new Vector2(15 + xOffset, 6 + yOffset);
 		newDice1.transform.parent = this.transform;
-		newDice1.GetComponent<SpriteRenderer>().sprite = diceFaceSpriteList[dice1.Color][dice1.Faces[Random.Range(0, 6)]];
+		int face1 = Random.Range (0, 6);
+		dice1.RolledFace = dice1.DieFaces[face1];
+		DieFace rolledFace1 = dice1.RolledFace;
+		newDice1.GetComponent<SpriteRenderer>().sprite = diceFaceSpriteList[rolledFace1.Color][rolledFace1.Type];
 		newDice1.GetComponent<BoxCollider2D>().enabled = true;
 		
 		int index2 = Random.Range (0, DiceList.Count);
@@ -431,7 +438,10 @@ public class Board : MonoBehaviour {
 		
 		newDice2.transform.position = new Vector2(15 + xOffset, 5 + yOffset);
 		newDice2.transform.parent = this.transform;
-		newDice2.GetComponent<SpriteRenderer>().sprite = diceFaceSpriteList[dice2.Color][dice2.Faces[Random.Range(0, 6)]];
+		int face2 = Random.Range (0, 6);
+		dice2.RolledFace = dice2.DieFaces[face2];
+		DieFace rolledFace2 = dice2.RolledFace;
+		newDice2.GetComponent<SpriteRenderer>().sprite = diceFaceSpriteList[rolledFace2.Color][rolledFace2.Type];
 		newDice2.GetComponent<BoxCollider2D>().enabled = true;
 		
 		int index3 = Random.Range (0, DiceList.Count);
@@ -446,15 +456,65 @@ public class Board : MonoBehaviour {
 		
 		newDice3.transform.position = new Vector2(15 + xOffset, 4 + yOffset);
 		newDice3.transform.parent = this.transform;
-		newDice3.GetComponent<SpriteRenderer>().sprite = diceFaceSpriteList[dice3.Color][dice3.Faces[Random.Range(0, 6)]];
+		int face3 = Random.Range (0, 6);
+		dice3.RolledFace = dice3.DieFaces[face3];
+		DieFace rolledFace3 = dice3.RolledFace;
+		newDice3.GetComponent<SpriteRenderer>().sprite = diceFaceSpriteList[rolledFace3.Color][rolledFace3.Type];
 		newDice3.GetComponent<BoxCollider2D>().enabled = true;
-		
+
 		RolledDice = new List<GameObject>();
 		RolledDice.Add(newDice1);
 		RolledDice.Add(newDice2);
 		RolledDice.Add(newDice3);
 		
 		state = State.ROLLED;
+	}
+
+	bool checkTemplatePlacement(int[] xTable, int[] yTable, int clickedX, int clickedY) {
+		bool clear = true;
+		
+		if ( (0 <= (clickedX + arrayMin(xTable))) && (width > clickedX + arrayMax(xTable)) &&
+		    (0 <= (clickedY + arrayMin(yTable))) && (height > clickedY + arrayMax(yTable)) ) {
+			
+			if (boardList[clickedX + xTable[0], clickedY + yTable[0]].GetComponent<Square>().SquareType != Color.WHITE) {
+				clear = false;
+			}
+			if (boardList[clickedX + xTable[1], clickedY + yTable[1]].GetComponent<Square>().SquareType != Color.WHITE) {
+				clear = false;
+			}
+			if (boardList[clickedX + xTable[2], clickedY + yTable[2]].GetComponent<Square>().SquareType != Color.WHITE) {
+				clear = false;
+			}
+			if (boardList[clickedX + xTable[3], clickedY + yTable[3]].GetComponent<Square>().SquareType != Color.WHITE) {
+				clear = false;
+			}
+			if (boardList[clickedX + xTable[4], clickedY + yTable[4]].GetComponent<Square>().SquareType != Color.WHITE) {
+				clear = false;
+			}
+			if (boardList[clickedX + xTable[5], clickedY + yTable[5]].GetComponent<Square>().SquareType != Color.WHITE) {
+				clear = false;
+			} 
+		}
+		else {
+			clear = false;
+		}
+
+		return clear;
+	}
+
+	void placeTemplate(int[] xTable, int[] yTable, int clickedX, int clickedY) {
+		boardList[clickedX + xTable[0], clickedY + yTable[0]].GetComponent<Square>().SquareType = selectedDice.GetComponent<Dice>().RolledFace.Color;
+		boardList[clickedX + xTable[0], clickedY + yTable[0]].GetComponent<SpriteRenderer>().sprite = squareSpriteList[selectedDice.GetComponent<Dice>().RolledFace.Color];
+		boardList[clickedX + xTable[1], clickedY + yTable[1]].GetComponent<Square>().SquareType = selectedDice.GetComponent<Dice>().RolledFace.Color;
+		boardList[clickedX + xTable[1], clickedY + yTable[1]].GetComponent<SpriteRenderer>().sprite = squareSpriteList[selectedDice.GetComponent<Dice>().RolledFace.Color];
+		boardList[clickedX + xTable[2], clickedY + yTable[2]].GetComponent<Square>().SquareType = selectedDice.GetComponent<Dice>().RolledFace.Color;
+		boardList[clickedX + xTable[2], clickedY + yTable[2]].GetComponent<SpriteRenderer>().sprite = squareSpriteList[selectedDice.GetComponent<Dice>().RolledFace.Color];
+		boardList[clickedX + xTable[3], clickedY + yTable[3]].GetComponent<Square>().SquareType = selectedDice.GetComponent<Dice>().RolledFace.Color;
+		boardList[clickedX + xTable[3], clickedY + yTable[3]].GetComponent<SpriteRenderer>().sprite = squareSpriteList[selectedDice.GetComponent<Dice>().RolledFace.Color];
+		boardList[clickedX + xTable[4], clickedY + yTable[4]].GetComponent<Square>().SquareType = selectedDice.GetComponent<Dice>().RolledFace.Color;
+		boardList[clickedX + xTable[4], clickedY + yTable[4]].GetComponent<SpriteRenderer>().sprite = squareSpriteList[selectedDice.GetComponent<Dice>().RolledFace.Color];
+		boardList[clickedX + xTable[5], clickedY + yTable[5]].GetComponent<Square>().SquareType = selectedDice.GetComponent<Dice>().RolledFace.Color;
+		boardList[clickedX + xTable[5], clickedY + yTable[5]].GetComponent<SpriteRenderer>().sprite = squareSpriteList[selectedDice.GetComponent<Dice>().RolledFace.Color];
 	}
 
 	int arrayMax(int[] array) {
@@ -477,9 +537,69 @@ public class Board : MonoBehaviour {
 			}
 		}
 		return toReturn;
+	}	
+
+	void resolveFight(GameObject att, GameObject def) {
+		Monster attacker = att.GetComponent<Monster>();
+		Monster defender = def.GetComponent<Monster>();
+		defender.Health -= (attacker.Attack - defender.Defense);
+
+		if (defender.Health <= 0) {
+			destroyMonster(def);
+		}
 	}
 
+	void destroyMonster(GameObject monsterGO) {
+		Graveyard.Add(monsterGO);
+		MonsterList.Remove(monsterGO);
+		monsterGO.SetActive(false);
+	}
 
+	List<GameObject> parseDiceList(string listFile) {
+		//create new parser/readers
+		List<GameObject> toReturn = new List<GameObject>();
 
-	
+		string[] fileLines = System.IO.File.ReadAllLines(@listFile);
+
+		//get next line of die faces
+		for(int i = 0; i < fileLines.Length; i++) {
+			string currLine = fileLines[i];
+
+			if (currLine[0] != '#') {
+				string[] splitLineString = currLine.Split(',');
+				int[] splitLineInt = new int[12]; 
+
+				GameObject newDice = (GameObject) Instantiate (Resources.Load ("Prefabs/Dice"));
+				newDice.GetComponent<BoxCollider2D>().enabled = false;
+				Dice dice = newDice.GetComponent<Dice>();
+				DieFace[] faces = new DieFace[6];
+
+				if (splitLineString.Length != 12) {
+					Debug.Log ("(Line " + i + "): Dice List Parser could not parse invalid line: \n" + currLine);
+				}
+				else {
+					for (int j = 0; j < splitLineString.Length; j++) {
+						try {
+							splitLineInt[j] = int.Parse (splitLineString[j]);
+						}
+						catch (System.FormatException e)
+						{
+							Debug.Log ("(Line " + i + "): Dice List Parser could not parse element \"" + splitLineString[j] + 
+							           "\"\nException thrown: " + e );
+						}
+					}
+					for (int j = 0; j < faces.Length; j++) {
+						faces[j] = new DieFace();
+						faces[j].Type = splitLineInt[j];
+						faces[j].Color = splitLineInt[j + 6];
+					}
+
+					dice.DieFaces = faces;
+
+					toReturn.Add(newDice);
+				}
+			}
+		}
+		return toReturn;
+	}
 }

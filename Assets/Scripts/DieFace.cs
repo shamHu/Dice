@@ -1,7 +1,7 @@
 ﻿using UnityEngine;
 using System.Collections;
 
-public class DieFace : MonoBehaviour {
+public class DieFace {
 
 	private int color;
 	public int Color {
@@ -12,15 +12,15 @@ public class DieFace : MonoBehaviour {
 	private int type;
 	public int Type {
 		get { return type; }
-		set { color = value; }
+		set { type = value; }
 	}
-
-	void Start () {
-		color = Random.Range (0, 9);
-		type = Random.Range (0, 9);
-	}
-
-	void Update () {
-	
-	}
+//
+//	void Start () {
+//		color = Random.Range (0, 9);
+//		type = Random.Range (0, 9);
+//	}
+//
+//	void Update () {
+//	
+//	}
 }

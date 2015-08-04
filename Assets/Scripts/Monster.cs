@@ -21,13 +21,18 @@ public class Monster : MonoBehaviour {
 		set { defense = value; }
 	}
 
+	private int owner;
+	public int Owner {
+		get { return owner; }
+		set { owner = value; }
+	}
+
 	private Vector3 position;
 	public Vector3 Position {
 		get { return position; }
 		set { position = value; }
 	}
-
-
+	
 	// Use this for initialization
 	void Start () {
 	
