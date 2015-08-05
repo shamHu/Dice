@@ -32,10 +32,16 @@ public class Monster : MonoBehaviour {
 		get { return position; }
 		set { position = value; }
 	}
+
+	private static string spritePath = "Sprites/Monsters/bulbasaur";
+	public string SpritePath {
+		get { return spritePath; }
+		set { spritePath = value; }
+	}
 	
 	// Use this for initialization
 	void Start () {
-	
+
 	}
 	
 	// Update is called once per frame
@@ -71,4 +77,16 @@ public class Monster : MonoBehaviour {
 		}
 		return this.position;
 	}
+
+	public virtual void attackTarget(Monster target) {
+		Debug.Log ("Attacking from Base Monster class (this should never happen).");
+	}
+}
+
+public class Bulbasaur : Monster {
+
+	override public void attackTarget(Monster target) {
+		Debug.Log ("attacking from NEW BULBASAUR CLASS??");
+	}
+
 }

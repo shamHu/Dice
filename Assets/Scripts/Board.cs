@@ -271,6 +271,7 @@ public class Board : MonoBehaviour {
 						currentlySelected.GetComponent<SpriteRenderer>().enabled = false;
 
 						GameObject newMonsterGO = (GameObject) Instantiate (Resources.Load ("Prefabs/Monster"));
+						newMonsterGO.AddComponent<Bulbasaur>();
 						newMonsterGO.transform.position = new Vector3(clickedX + xOffset, clickedY + yOffset, -2);
 						Monster newMonster = newMonsterGO.GetComponent<Monster>();
 						newMonster.Position = newMonster.transform.position;
@@ -280,7 +281,8 @@ public class Board : MonoBehaviour {
 							newMonster.Attack = 5;
 							newMonster.Defense = 1;
 							newMonster.Health = 8;
-							newMonsterGO.GetComponent<SpriteRenderer>().sprite = Resources.Load<Sprite> ("Sprites/bulbasaur");
+							Debug.Log ("monster attack: " + newMonsterGO.GetComponent<Monster>().Attack);
+							newMonsterGO.GetComponent<SpriteRenderer>().sprite = Resources.Load<Sprite> (newMonster.SpritePath);
 							PlayerMonsterList.Add (newMonsterGO);
 						}
 						else {
@@ -288,7 +290,7 @@ public class Board : MonoBehaviour {
 							newMonster.Attack = 5;
 							newMonster.Defense = 1;
 							newMonster.Health = 8;
-							newMonsterGO.GetComponent<SpriteRenderer>().sprite = Resources.Load<Sprite> ("Sprites/squirtle");
+							newMonsterGO.GetComponent<SpriteRenderer>().sprite = Resources.Load<Sprite> ("Sprites/Monsters/squirtle");
 							AIMonsterList.Add (newMonsterGO);
 						}
 						MonsterList.Add(newMonsterGO);
@@ -356,7 +358,6 @@ public class Board : MonoBehaviour {
 						else {
 							//TODO implement fight stuff
 							resolveFight(selectedMonsterGO, clickedGO);
-							Debug.Log ("fight!");
 						}
 					}
 					else {
@@ -540,6 +541,7 @@ public class Board : MonoBehaviour {
 	}	
 
 	void resolveFight(GameObject att, GameObject def) {
+		att.GetComponent<Monster>().attackTarget(def.GetComponent<Monster>());
 		Monster attacker = att.GetComponent<Monster>();
 		Monster defender = def.GetComponent<Monster>();
 		defender.Health -= (attacker.Attack - defender.Defense);
