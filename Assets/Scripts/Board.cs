@@ -353,6 +353,7 @@ public class Board : MonoBehaviour {
 						}
 						else {
 							//TODO implement fight stuff
+							selectedMonster.attack(clickedMonster);
 							resolveFight(selectedMonsterGO, clickedGO);
 						}
 					}
@@ -537,12 +538,10 @@ public class Board : MonoBehaviour {
 	}	
 
 	void resolveFight(GameObject att, GameObject def) {
-		att.GetComponent<Monster>().attackTarget(def.GetComponent<Monster>());
-		Monster attacker = att.GetComponent<Monster>();
-		Monster defender = def.GetComponent<Monster>();
-		defender.Health -= (attacker.Attack - defender.Defense);
+		Monster attacker = att.GetComponent<Monster> ();
+		Monster defender = def.GetComponent<Monster> ();
 
-		if (defender.Health <= 0) {
+		if (defender.HP <= 0) {
 			destroyMonster(def);
 		}
 	}

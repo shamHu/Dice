@@ -3,22 +3,22 @@ using System.Collections;
 
 public class Monster : MonoBehaviour {
 
-	private int health;
-	public int Health {
-		get { return health; }
-		set { health = value; }
+	private int hp;
+	public int HP {
+		get { return hp; }
+		set { hp = value; }
 	}
 
-	private int attack;
-	public int Attack {
-		get { return attack; } 
-		set { attack = value; }
+	private int att;
+	public int ATT {
+		get { return ATT; } 
+		set { ATT = value; }
 	}
 
-	private int defense;
-	public int Defense {
-		get { return defense; }
-		set { defense = value; }
+	private int def;
+	public int DEF {
+		get { return DEF; }
+		set { DEF = value; }
 	}
 
 	private int owner;
@@ -82,7 +82,7 @@ public class Monster : MonoBehaviour {
 		Debug.Log ("Initializing base Monster class.");
 	}
 
-	public virtual void attackTarget(Monster target) {
+	public virtual void attack(Monster target) {
 		Debug.Log ("Attacking from Base Monster class (this should never happen).");
 	}
 }
@@ -90,14 +90,14 @@ public class Monster : MonoBehaviour {
 public class Bulbasaur : Monster {
 
 	override public void init() {
-		Health = 8;
-		Attack = 5;
-		Defense = 1;
+		HP = 8;
+		ATT = 5;
+		DEF = 1;
 		Owner = 0;
 		SpritePath = "Sprites/Monsters/bulbasaur";
 	}
 
-	override public void attackTarget(Monster target) {
+	override public void attack(Monster target) {
 		Debug.Log ("attacking from NEW BULBASAUR CLASS??");
 	}
 
@@ -106,14 +106,14 @@ public class Bulbasaur : Monster {
 public class Squirtle : Monster {
 
 	override public void init() {
-		Health = 10;
-		Attack = 3;
-		Defense = 1;
+		HP = 10;
+		ATT = 3;
+		DEF = 1;
 		Owner = 1;
 		SpritePath = "Sprites/Monsters/squirtle";
 	}
 
-	override public void attackTarget(Monster target) {
+	override public void attack(Monster target) {
 		Debug.Log ("attacking from NEW Squirtle CLASS??");
 	}
 	
