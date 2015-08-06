@@ -70,9 +70,11 @@ public class Board : MonoBehaviour {
 	void Start () {
 		Screen.orientation = ScreenOrientation.LandscapeLeft;
 
+		GameObject squarePrefab = (GameObject) Resources.Load ("Prefabs/Square");
+
 		for (int x = 0; x < width; x++) {
 			for (int y = 0; y < height; y++) {
-				GameObject newSquare = (GameObject) Instantiate (Resources.Load ("Prefabs/Square"));
+				GameObject newSquare = (GameObject) Instantiate (squarePrefab);
 				newSquare.GetComponent<Square>().XPos = x;
 				newSquare.GetComponent<Square>().YPos = y;
 				newSquare.GetComponent<SpriteRenderer>().sprite = squareSpriteList[Color.WHITE];
