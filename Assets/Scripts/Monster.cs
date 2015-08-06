@@ -105,9 +105,7 @@ public class Monster : MonoBehaviour {
 				return true;
 			}
 		}
-		else {
-			return false;
-		}
+		return false;
 	}
 }
 
@@ -123,7 +121,7 @@ public class Bulbasaur : Monster {
 	}
 
 	override public void attack(Monster target) {
-		if (isAdjacentTo(target) {
+		if (isAdjacentTo(target)) {
 			target.HP -= (ATT - target.DEF);
 			Debug.Log ("Bulbasaur attacking! Target " + target.MonsterName + " at " + target.HP + "HP.");
 		}
@@ -142,7 +140,7 @@ public class Squirtle : Monster {
 	}
 
 	override public void attack(Monster target) {
-		if (isAdjacentTo(target) {
+		if (isAdjacentTo(target)) {
 			target.HP -= (ATT - target.DEF);		
 			Debug.Log ("Squirtle attacking! Target " + target.MonsterName + " at " + target.HP + "HP.");
 		}
