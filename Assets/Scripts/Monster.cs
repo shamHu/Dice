@@ -11,14 +11,14 @@ public class Monster : MonoBehaviour {
 
 	private int att;
 	public int ATT {
-		get { return ATT; } 
-		set { ATT = value; }
+		get { return att; } 
+		set { att = value; }
 	}
 
 	private int def;
 	public int DEF {
-		get { return DEF; }
-		set { DEF = value; }
+		get { return def; }
+		set { def = value; }
 	}
 
 	private int owner;
@@ -31,6 +31,12 @@ public class Monster : MonoBehaviour {
 	public Vector3 Position {
 		get { return position; }
 		set { position = value; }
+	}
+
+	private string monsterName;
+	public string MonsterName {
+		get { return monsterName; }
+		set { monsterName = value; }
 	}
 
 	private static string spritePath;
@@ -94,11 +100,13 @@ public class Bulbasaur : Monster {
 		ATT = 5;
 		DEF = 1;
 		Owner = 0;
+		MonsterName = "Bulbasaur";
 		SpritePath = "Sprites/Monsters/bulbasaur";
 	}
 
 	override public void attack(Monster target) {
-		Debug.Log ("attacking from NEW BULBASAUR CLASS??");
+		target.HP -= (ATT - target.DEF);
+		Debug.Log ("Bulbasaur attacking! Target " + target.MonsterName + " at " + target.HP + "HP.");
 	}
 
 }
@@ -110,11 +118,13 @@ public class Squirtle : Monster {
 		ATT = 3;
 		DEF = 1;
 		Owner = 1;
+		MonsterName = "Squirtle";
 		SpritePath = "Sprites/Monsters/squirtle";
 	}
 
 	override public void attack(Monster target) {
-		Debug.Log ("attacking from NEW Squirtle CLASS??");
+		target.HP -= (ATT - target.DEF);
+		Debug.Log ("Squirtle attacking! Target " + target.MonsterName + " at " + target.HP + "HP.");
 	}
 	
 }
