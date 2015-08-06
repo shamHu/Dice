@@ -33,7 +33,7 @@ public class Monster : MonoBehaviour {
 		set { position = value; }
 	}
 
-	private static string spritePath = "Sprites/Monsters/bulbasaur";
+	private static string spritePath;
 	public string SpritePath {
 		get { return spritePath; }
 		set { spritePath = value; }
@@ -78,6 +78,10 @@ public class Monster : MonoBehaviour {
 		return this.position;
 	}
 
+	public virtual void init() {
+		Debug.Log ("Initializing base Monster class.");
+	}
+
 	public virtual void attackTarget(Monster target) {
 		Debug.Log ("Attacking from Base Monster class (this should never happen).");
 	}
@@ -85,8 +89,32 @@ public class Monster : MonoBehaviour {
 
 public class Bulbasaur : Monster {
 
+	override public void init() {
+		Health = 8;
+		Attack = 5;
+		Defense = 1;
+		Owner = 0;
+		SpritePath = "Sprites/Monsters/bulbasaur";
+	}
+
 	override public void attackTarget(Monster target) {
 		Debug.Log ("attacking from NEW BULBASAUR CLASS??");
 	}
 
+}
+
+public class Squirtle : Monster {
+
+	override public void init() {
+		Health = 10;
+		Attack = 3;
+		Defense = 1;
+		Owner = 1;
+		SpritePath = "Sprites/Monsters/squirtle";
+	}
+
+	override public void attackTarget(Monster target) {
+		Debug.Log ("attacking from NEW Squirtle CLASS??");
+	}
+	
 }

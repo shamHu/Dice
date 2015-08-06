@@ -271,28 +271,24 @@ public class Board : MonoBehaviour {
 						currentlySelected.GetComponent<SpriteRenderer>().enabled = false;
 
 						GameObject newMonsterGO = (GameObject) Instantiate (Resources.Load ("Prefabs/Monster"));
-						newMonsterGO.AddComponent<Bulbasaur>();
 						newMonsterGO.transform.position = new Vector3(clickedX + xOffset, clickedY + yOffset, -2);
-						Monster newMonster = newMonsterGO.GetComponent<Monster>();
-						newMonster.Position = newMonster.transform.position;
 
+						//TODO change this part so it handles more monsters based on dice type/value, and ownership isn't
+						//based on which color dice is rolled.
 						if (selectedDice.GetComponent<Dice>().RolledFace.Color == Color.GREEN) {
-							newMonster.Owner = Owner.PLAYER;
-							newMonster.Attack = 5;
-							newMonster.Defense = 1;
-							newMonster.Health = 8;
-							Debug.Log ("monster attack: " + newMonsterGO.GetComponent<Monster>().Attack);
-							newMonsterGO.GetComponent<SpriteRenderer>().sprite = Resources.Load<Sprite> (newMonster.SpritePath);
+							newMonsterGO.AddComponent<Bulbasaur>();
 							PlayerMonsterList.Add (newMonsterGO);
 						}
 						else {
-							newMonster.Owner = Owner.AI;
-							newMonster.Attack = 5;
-							newMonster.Defense = 1;
-							newMonster.Health = 8;
-							newMonsterGO.GetComponent<SpriteRenderer>().sprite = Resources.Load<Sprite> ("Sprites/Monsters/squirtle");
+							newMonsterGO.AddComponent<Squirtle>();
 							AIMonsterList.Add (newMonsterGO);
 						}
+
+						Monster newMonster = newMonsterGO.GetComponent<Monster>();
+						newMonster.init ();
+						newMonster.Position = newMonster.transform.position;
+						newMonsterGO.GetComponent<SpriteRenderer>().sprite = Resources.Load<Sprite> (newMonster.SpritePath);
+
 						MonsterList.Add(newMonsterGO);
 
 						state = State.TEMPLATEPLACED;
