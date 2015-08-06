@@ -120,15 +120,19 @@ public class Monster : MonoBehaviour {
 	}
 
 	public bool isAdjacentTo(Monster target) {
+		Debug.Log ("target x: " + target.Position.x + " y: " + target.Position.y);
+		Debug.Log("my x: " + this.Position.x + " y: " + this.Position.y);
+
 		if (target.Position.x == this.Position.x) {
-			if ((target.Position.y - this.Position.y) > -1 && 
-			    (target.Position.y - this.Position.y < 1)) {
+			if ((target.Position.y - this.Position.y) >= -1 && 
+			    (target.Position.y - this.Position.y) <= 1) {
 				return true;
 			}
 		}
-		else if (target.Position.y == this.Position.y) {
-			if ((target.Position.x - this.Position.x) > -1 && 
-			    (target.Position.x - this.Position.x < 1)) {
+		if (target.Position.y == this.Position.y) {
+			Debug.Log ("y equals");
+			if ((target.Position.x - this.Position.x) >= -1 && 
+			    (target.Position.x - this.Position.x) <= 1) {
 				return true;
 			}
 		}
