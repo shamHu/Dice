@@ -118,6 +118,22 @@ public class Monster : MonoBehaviour {
 		
 		stats.anchoredPosition = WorldObject_ScreenPosition;
 	}
+
+	public bool isAdjacentTo(Monster target) {
+		if (target.Position.x == this.Position.x) {
+			if ((target.Position.y - this.Position.y) > -1 && 
+			    (target.Position.y - this.Position.y < 1)) {
+				return true;
+			}
+		}
+		else if (target.Position.y == this.Position.y) {
+			if ((target.Position.x - this.Position.x) > -1 && 
+			    (target.Position.x - this.Position.x < 1)) {
+				return true;
+			}
+		}
+		return false;
+	}
 }
 
 public class Bulbasaur : Monster {
@@ -133,8 +149,10 @@ public class Bulbasaur : Monster {
 	}
 
 	override public void attack(Monster target) {
-		target.HP -= (ATT - target.DEF);
-		Debug.Log ("Bulbasaur attacking! Target " + target.MonsterName + " at " + target.HP + "HP.");
+		if (isAdjacentTo(target)) {
+			target.HP -= (ATT - target.DEF);
+			Debug.Log ("Bulbasaur attacking! Target " + target.MonsterName + " at " + target.HP + "HP.");
+		}
 	}
 }
 
@@ -151,7 +169,9 @@ public class Squirtle : Monster {
 	}
 
 	override public void attack(Monster target) {
-		target.HP -= (ATT - target.DEF);
-		Debug.Log ("Squirtle attacking! Target " + target.MonsterName + " at " + target.HP + "HP.");
+		if (isAdjacentTo(target)) {
+			target.HP -= (ATT - target.DEF);		
+			Debug.Log ("Squirtle attacking! Target " + target.MonsterName + " at " + target.HP + "HP.");
+		}
 	}
 }
