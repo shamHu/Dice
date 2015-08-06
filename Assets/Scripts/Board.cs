@@ -1,4 +1,5 @@
 ﻿using UnityEngine;
+using UnityEngine.UI;
 using System.Collections;
 using System.Collections.Generic;
 
@@ -59,6 +60,8 @@ public class Board : MonoBehaviour {
 		selectTemplateButton;
 	GameObject selectedMonsterGO;
 
+	private UIManager uiManager;
+
 	void Awake () {
 		squareSpriteList = Resources.LoadAll<Sprite>("Sprites/square");
 		diceFaceSpriteList[Color.WHITE] = Resources.LoadAll<Sprite>("Sprites/diceFaces");
@@ -69,6 +72,8 @@ public class Board : MonoBehaviour {
 
 	void Start () {
 		Screen.orientation = ScreenOrientation.LandscapeLeft;
+
+		uiManager = UIManager.Instance;
 
 		for (int x = 0; x < width; x++) {
 			for (int y = 0; y < height; y++) {
@@ -188,6 +193,8 @@ public class Board : MonoBehaviour {
 			}
 		}
 		else if (state == State.DICESELECTED) {
+			UIManager.Instance.MonsterUICanvas.gameObject.SetActive(false);
+
 			if (Input.GetMouseButtonDown (0)) {
 				RaycastHit2D hit = Physics2D.Raycast(Camera.main.ScreenToWorldPoint(Input.mousePosition), Vector2.zero);
 
@@ -198,7 +205,6 @@ public class Board : MonoBehaviour {
 						toggleTemplateOverlay(false);
 
 						state = State.TEMPLATESELECTED;
-
 					}
 					else if (hit.collider.gameObject == rotateLeftButton) {
 						diceTemplate.transform.Rotate (new Vector3(0, 0, 90));
@@ -241,6 +247,7 @@ public class Board : MonoBehaviour {
 			}
 		}
 		else if (state == State.TEMPLATESELECTED) {
+			UIManager.Instance.MonsterUICanvas.gameObject.SetActive(true);
 
 			if (Input.GetMouseButtonDown (0)) {
 				RaycastHit2D hit = Physics2D.Raycast(Camera.main.ScreenToWorldPoint(Input.mousePosition), Vector2.zero);
@@ -324,6 +331,10 @@ public class Board : MonoBehaviour {
 			}
 		}
 		else if (state == State.MONSTERSELECTED) {
+			Monster selectedMonster1 = selectedMonsterGO.GetComponent<Monster>();
+
+			uiManager.UpdateSelectedMonsterUI(selectedMonster1, "DICKS DICKS DICKS");
+
 			if (Input.GetMouseButtonDown (0)) {
 				RaycastHit2D hit = Physics2D.Raycast(Camera.main.ScreenToWorldPoint(Input.mousePosition), Vector2.zero);
 
@@ -549,6 +560,7 @@ public class Board : MonoBehaviour {
 	void destroyMonster(GameObject monsterGO) {
 		Graveyard.Add(monsterGO);
 		MonsterList.Remove(monsterGO);
+		monsterGO.GetComponent<Monster>().Stats.gameObject.SetActive(false);
 		monsterGO.SetActive(false);
 	}
 

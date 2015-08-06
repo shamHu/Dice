@@ -1,4 +1,5 @@
 ﻿using UnityEngine;
+using UnityEngine.UI;
 using System.Collections;
 
 public class Monster : MonoBehaviour {
@@ -44,15 +45,19 @@ public class Monster : MonoBehaviour {
 		get { return spritePath; }
 		set { spritePath = value; }
 	}
-	
-	// Use this for initialization
-	void Start () {
 
+	protected RectTransform stats;
+	public RectTransform Stats
+	{
+		get { return stats; }
 	}
-	
-	// Update is called once per frame
-	void Update () {
-	
+
+	protected Canvas monsterUICanvas;
+	protected RectTransform canvasRect;
+
+	void Update()
+	{
+		UpdateStatsPosition();
 	}
 
 	public Vector3 move(GameObject clickedGO) {
@@ -86,10 +91,32 @@ public class Monster : MonoBehaviour {
 
 	public virtual void init() {
 		Debug.Log ("Initializing base Monster class.");
+
+		monsterUICanvas = UIManager.Instance.MonsterUICanvas;
+		canvasRect = monsterUICanvas.GetComponent<RectTransform>();
+
+		stats = ((GameObject)Instantiate(UIManager.Instance.MonsterUIPrefab)).GetComponent<RectTransform>();
+		stats.transform.FindChild("HP").GetComponent<Text>().text = HP.ToString();
+		stats.transform.FindChild("ATT").GetComponent<Text>().text = ATT.ToString();
+		stats.transform.FindChild("DEF").GetComponent<Text>().text = DEF.ToString();
+		stats.transform.SetParent(monsterUICanvas.transform);
+		stats.transform.localScale = Vector3.one;
+		UpdateStatsPosition();
 	}
 
 	public virtual void attack(Monster target) {
 		Debug.Log ("Attacking from Base Monster class (this should never happen).");
+	}
+
+	public void UpdateStatsPosition()
+	{
+		Vector2 ViewportPosition= Camera.main.WorldToViewportPoint(transform.position);
+		
+		Vector2 WorldObject_ScreenPosition = new Vector2(
+			((ViewportPosition.x*canvasRect.sizeDelta.x)-(canvasRect.sizeDelta.x*0.5f)),
+			((ViewportPosition.y*canvasRect.sizeDelta.y)-(canvasRect.sizeDelta.y*0.5f)));
+		
+		stats.anchoredPosition = WorldObject_ScreenPosition;
 	}
 }
 
@@ -102,13 +129,13 @@ public class Bulbasaur : Monster {
 		Owner = 0;
 		MonsterName = "Bulbasaur";
 		SpritePath = "Sprites/Monsters/bulbasaur";
+		base.init();
 	}
 
 	override public void attack(Monster target) {
 		target.HP -= (ATT - target.DEF);
 		Debug.Log ("Bulbasaur attacking! Target " + target.MonsterName + " at " + target.HP + "HP.");
 	}
-
 }
 
 public class Squirtle : Monster {
@@ -120,11 +147,11 @@ public class Squirtle : Monster {
 		Owner = 1;
 		MonsterName = "Squirtle";
 		SpritePath = "Sprites/Monsters/squirtle";
+		base.init();
 	}
 
 	override public void attack(Monster target) {
 		target.HP -= (ATT - target.DEF);
 		Debug.Log ("Squirtle attacking! Target " + target.MonsterName + " at " + target.HP + "HP.");
 	}
-	
 }
