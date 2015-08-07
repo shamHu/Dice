@@ -334,7 +334,7 @@ public class Board : MonoBehaviour {
 		else if (state == State.MONSTERSELECTED) {
 			Monster selectedMonster1 = selectedMonsterGO.GetComponent<Monster>();
 
-			uiManager.UpdateSelectedMonsterUI(selectedMonster1, "DICKS DICKS DICKS");
+			uiManager.UpdateSelectedMonsterUI(selectedMonster1);
 
 			if (Input.GetMouseButtonDown (0)) {
 				RaycastHit2D hit = Physics2D.Raycast(Camera.main.ScreenToWorldPoint(Input.mousePosition), Vector2.zero);
@@ -366,6 +366,7 @@ public class Board : MonoBehaviour {
 						else {
 							//TODO implement fight stuff
 							selectedMonster.attack(clickedMonster);
+							uiManager.UpdateSelectedMonsterUI(clickedMonster);
 							resolveFight(selectedMonsterGO, clickedGO);
 						}
 					}

@@ -40,10 +40,22 @@ public class Monster : MonoBehaviour {
 		set { monsterName = value; }
 	}
 
+	private string description;
+	public string Description {
+		get { return description; }
+		set { description = value; }
+	}
+
 	private static string spritePath;
 	public string SpritePath {
 		get { return spritePath; }
 		set { spritePath = value; }
+	}
+
+	private static string bigSpritePath;
+	public string BigSpritePath {
+		get { return bigSpritePath; }
+		set { bigSpritePath = value; }
 	}
 
 	protected RectTransform stats;
@@ -57,7 +69,7 @@ public class Monster : MonoBehaviour {
 
 	void Update()
 	{
-		UpdateStatsPosition();
+		UpdateStats();
 	}
 
 	public Vector3 move(GameObject clickedGO) {
@@ -96,22 +108,23 @@ public class Monster : MonoBehaviour {
 		canvasRect = monsterUICanvas.GetComponent<RectTransform>();
 
 		stats = ((GameObject)Instantiate(UIManager.Instance.MonsterUIPrefab)).GetComponent<RectTransform>();
-		stats.transform.FindChild("HP").GetComponent<Text>().text = HP.ToString();
-		stats.transform.FindChild("ATT").GetComponent<Text>().text = ATT.ToString();
-		stats.transform.FindChild("DEF").GetComponent<Text>().text = DEF.ToString();
 		stats.transform.SetParent(monsterUICanvas.transform);
 		stats.transform.localScale = Vector3.one;
-		UpdateStatsPosition();
+		UpdateStats();
 	}
 
 	public virtual void attack(Monster target) {
 		Debug.Log ("Attacking from Base Monster class (this should never happen).");
 	}
 
-	public void UpdateStatsPosition()
+	public void UpdateStats()
 	{
 		Vector2 ViewportPosition= Camera.main.WorldToViewportPoint(transform.position);
-		
+
+		stats.transform.FindChild("HP").GetComponent<Text>().text = HP.ToString();
+		stats.transform.FindChild("ATT").GetComponent<Text>().text = ATT.ToString();
+		stats.transform.FindChild("DEF").GetComponent<Text>().text = DEF.ToString();
+
 		Vector2 WorldObject_ScreenPosition = new Vector2(
 			((ViewportPosition.x*canvasRect.sizeDelta.x)-(canvasRect.sizeDelta.x*0.5f)),
 			((ViewportPosition.y*canvasRect.sizeDelta.y)-(canvasRect.sizeDelta.y*0.5f)));
@@ -120,9 +133,6 @@ public class Monster : MonoBehaviour {
 	}
 
 	public bool isAdjacentTo(Monster target) {
-		Debug.Log ("target x: " + target.Position.x + " y: " + target.Position.y);
-		Debug.Log("my x: " + this.Position.x + " y: " + this.Position.y);
-
 		if (target.Position.x == this.Position.x) {
 			if ((target.Position.y - this.Position.y) >= -1 && 
 			    (target.Position.y - this.Position.y) <= 1) {
@@ -130,7 +140,6 @@ public class Monster : MonoBehaviour {
 			}
 		}
 		if (target.Position.y == this.Position.y) {
-			Debug.Log ("y equals");
 			if ((target.Position.x - this.Position.x) >= -1 && 
 			    (target.Position.x - this.Position.x) <= 1) {
 				return true;
@@ -149,6 +158,8 @@ public class Bulbasaur : Monster {
 		Owner = 0;
 		MonsterName = "Bulbasaur";
 		SpritePath = "Sprites/Monsters/bulbasaur";
+		BigSpritePath = "Sprites/Monsters/bulbasaurBig";
+		Description = "A strange seed was planted on its back at birth. The plant sprouts and grows with this Pokémon.";
 		base.init();
 	}
 
@@ -169,6 +180,8 @@ public class Squirtle : Monster {
 		Owner = 1;
 		MonsterName = "Squirtle";
 		SpritePath = "Sprites/Monsters/squirtle";
+		BigSpritePath = "Sprites/Monsters/squirtleBig";
+		Description = "Shoots water at prey while in the water. Withdraws into its shell when in danger."; 
 		base.init();
 	}
 

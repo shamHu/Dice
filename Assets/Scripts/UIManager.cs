@@ -45,12 +45,12 @@ public class UIManager : MonoBehaviour {
 	[SerializeField]
 	private Image monsterImage;
 
-	public void UpdateSelectedMonsterUI(Monster monster, string description)
+	public void UpdateSelectedMonsterUI(Monster monster)
 	{
 		selectedHP.text = monster.HP.ToString();
 		selectedATT.text = monster.ATT.ToString();
 		selectedDEF.text = monster.DEF.ToString();
-		selectedDescription.text = description;
-		monsterImage.sprite = monster.GetComponent<SpriteRenderer>().sprite;
+		selectedDescription.text = monster.Description;
+		monsterImage.sprite = Resources.Load<Sprite>(monster.BigSpritePath);
 	}
 }
